@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend Reference — Enterprise Multi-Vendor E-Commerce Marketplace</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-900: #0d1b2a;
+      --navy-800: #1a2d42;
+      --navy-700: #253d57;
+      --navy-600: #2f4f6e;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --bg-page: #f8fafc;
+      --bg-white: #ffffff;
+      --bg-code: #f1f5f9;
+      --bg-code-border: #cbd5e1;
+      --tag-customer: #dbeafe;
+      --tag-customer-text: #1d4ed8;
+      --tag-vendor: #dcfce7;
+      --tag-vendor-text: #15803d;
+      --tag-admin: #fef3c7;
+      --tag-admin-text: #92400e;
+      --tag-bug: #fee2e2;
+      --tag-bug-text: #991b1b;
+      --tag-fix: #d1fae5;
+      --tag-fix-text: #065f46;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Oxygen, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+
+    /* ===== Page Header ===== */
+    .page-header {
+      background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 60%, #1e3a5f 100%);
+      color: #fff;
+      padding: 60px 40px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: 30%;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .page-header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(59,130,246,0.25);
+      border: 1px solid rgba(59,130,246,0.5);
+      color: #93c5fd;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+    .page-header h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .page-header h1 span { color: var(--accent-cyan); }
+    .page-header .subtitle {
+      font-size: 1.05rem;
+      color: #94a3b8;
+      max-width: 680px;
+      line-height: 1.6;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 28px;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+    .meta-item strong { color: #cbd5e1; }
+    .meta-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      flex-shrink: 0;
+    }
+
+    /* ===== Stack Chips ===== */
+    .stack-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 22px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #e2e8f0;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* ===== Layout Wrapper ===== */
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* ===== Sidebar TOC ===== */
+    .toc {
+      position: sticky;
+      top: 24px;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .toc-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc ul { list-style: none; }
+    .toc > ul > li { margin-bottom: 2px; }
+    .toc a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .toc a:hover { background: #eff6ff; color: var(--accent-blue); }
+    .toc .toc-section {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.83rem;
+      padding: 6px 8px 4px;
+      border-radius: 6px;
+    }
+    .toc .toc-sub { padding-left: 16px; margin-top: 2px; }
+    .toc .toc-sub li a {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 3px 8px;
+    }
+    .toc .toc-sub li a:hover { color: var(--accent-blue); background: #eff6ff; }
+    .toc-counter {
+      display: inline-block;
+      background: #eff6ff;
+      color: var(--accent-blue);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-left: 4px;
+    }
+
+    /* ===== Main Content ===== */
+    .content { min-width: 0; }
+
+    /* ===== Section ===== */
+    .section {
+      margin-bottom: 56px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .icon-blue { background: #dbeafe; }
+    .icon-green { background: #dcfce7; }
+    .icon-purple { background: #f3e8ff; }
+    .icon-amber { background: #fef3c7; }
+    .icon-cyan { background: #cffafe; }
+    .section-header h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .section-number {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ===== Bug Cards ===== */
+    .bug-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s;
+    }
+    .bug-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+    .bug-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px 14px;
+      background: linear-gradient(to right, #fafbfc, #fff);
+    }
+    .bug-number {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--navy-800);
+      color: #93c5fd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .bug-title {
+      font-size: 1.0rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+    .bug-title code {
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: var(--bg-code);
+      border: 1px solid var(--bg-code-border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    .bug-body { padding: 0 20px 20px 62px; }
+    .bug-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 8px 16px;
+      margin-bottom: 12px;
+      align-items: start;
+    }
+    .bug-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 0;
+    }
+    .label-cause { color: var(--accent-red); }
+    .label-fix { color: var(--accent-green); }
+    .label-files { color: var(--accent-blue); }
+    .bug-value {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .bug-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    /* ===== Tags ===== */
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+    .tag-bug { background: var(--tag-bug); color: var(--tag-bug-text); }
+    .tag-fix { background: var(--tag-fix); color: var(--tag-fix-text); }
+    .tag-customer { background: var(--tag-customer); color: var(--tag-customer-text); }
+    .tag-vendor { background: var(--tag-vendor); color: var(--tag-vendor-text); }
+    .tag-admin { background: var(--tag-admin); color: var(--tag-admin-text); }
+    .tag-api { background: #f0fdf4; color: #166534; }
+    .tag-ui { background: #fdf4ff; color: #6b21a8; }
+    .tag-auth { background: #fff7ed; color: #9a3412; }
+
+    /* ===== File Pills ===== */
+    .file-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .file-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-code);
+      border: 1px solid var(--bg-code-border);
+      color: var(--navy-800);
+      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+      font-size: 0.71rem;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 500;
+    }
+    .file-pill .file-icon { font-size: 0.7rem; opacity: 0.6; }
+
+    /* ===== Code Blocks ===== */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 18px 22px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      margin: 16px 0;
+      border: 1px solid #1e293b;
+      position: relative;
+    }
+    pre .lang-label {
+      position: absolute;
+      top: 10px; right: 14px;
+      font-size: 0.63rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #475569;
+      background: #1e293b;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .kw { color: #c084fc; }
+    .fn { color: #60a5fa; }
+    .str { color: #86efac; }
+    .cm { color: #475569; font-style: italic; }
+    .ty { color: #f0abfc; }
+    .num { color: #fb923c; }
+    .op { color: #94a3b8; }
+    .prop { color: #93c5fd; }
+    .var { color: #e2e8f0; }
+
+    /* ===== Inline Code ===== */
+    code {
+      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+      font-size: 0.85em;
+      background: var(--bg-code);
+      border: 1px solid var(--bg-code-border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    /* ===== Architecture Boxes ===== */
+    .arch-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .arch-card h3 {
+      font-size: 1.0rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .arch-card p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    /* ===== Directory Tree ===== */
+    .tree {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 24px;
+      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.85;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+    }
+    .tree .dir { color: #60a5fa; font-weight: 600; }
+    .tree .file { color: #94a3b8; }
+    .tree .comment { color: #475569; font-style: italic; }
+    .tree .highlight { color: #86efac; }
+
+    /* ===== Flow Diagram ===== */
+    .flow {
+      display: flex;
+      align-items: stretch;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 18px 0;
+    }
+    .flow-step {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      flex: 1;
+      min-width: 130px;
+      position: relative;
+    }
+    .flow-step .step-num {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .flow-step .step-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+    .flow-step .step-detail {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      line-height: 1.5;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      align-self: center;
+    }
+
+    /* ===== Tables ===== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 16px 0;
+    }
+    .data-table th {
+      background: var(--navy-900);
+      color: #94a3b8;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .data-table th:first-child { border-radius: 8px 0 0 0; }
+    .data-table th:last-child { border-radius: 0 8px 0 0; }
+    .data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: var(--text-secondary);
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafc; }
+    .data-table code {
+      font-size: 0.78em;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== Callout Boxes ===== */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .callout-content { flex: 1; }
+    .callout-info { background: #eff6ff; border-left: 4px solid var(--accent-blue); }
+    .callout-warn { background: #fffbeb; border-left: 4px solid var(--accent-amber); }
+    .callout-tip { background: #f0fdf4; border-left: 4px solid var(--accent-green); }
+    .callout-danger { background: #fef2f2; border-left: 4px solid var(--accent-red); }
+
+    /* ===== Two Column Grid ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+    /* ===== Sub Section ===== */
+    .subsection { margin-bottom: 32px; }
+    .subsection h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .subsection p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+    .subsection ul {
+      padding-left: 20px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+    .subsection li { margin-bottom: 4px; }
+
+    /* ===== State Store Box ===== */
+    .store-box {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .store-box-header {
+      background: var(--navy-800);
+      color: #e2e8f0;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .store-box-body { padding: 14px 16px; }
+    .store-field {
+      display: grid;
+      grid-template-columns: 150px 80px 1fr;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      align-items: start;
+    }
+    .store-field:last-child { border-bottom: none; }
+    .store-field-name {
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      color: #0f172a;
+      font-size: 0.78rem;
+    }
+    .store-field-type {
+      color: var(--accent-purple);
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.74rem;
+    }
+    .store-field-desc { color: var(--text-muted); font-size: 0.77rem; }
+
+    /* ===== Route Tree ===== */
+    .route-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 7px;
+      margin-bottom: 4px;
+      font-size: 0.82rem;
+    }
+    .route-item:hover { background: #f8fafc; }
+    .route-path {
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      color: var(--navy-800);
+      font-size: 0.8rem;
+      min-width: 220px;
+    }
+    .route-component { color: var(--text-muted); font-size: 0.78rem; flex: 1; }
+    .route-guard {
+      font-size: 0.67rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .guard-public { background: #f0fdf4; color: #15803d; }
+    .guard-auth { background: #eff6ff; color: #1d4ed8; }
+    .guard-vendor { background: #dcfce7; color: #15803d; }
+    .guard-admin { background: #fef3c7; color: #92400e; }
+
+    /* ===== Footer ===== */
+    .page-footer {
+      background: var(--navy-900);
+      color: #475569;
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 0.78rem;
+      margin-top: 40px;
+    }
+    .page-footer a { color: #60a5fa; text-decoration: none; }
+
+    /* ===== Print / Responsive ===== */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+      .page-header h1 { font-size: 1.7rem; }
+      .two-col { grid-template-columns: 1fr; }
+      .store-field { grid-template-columns: 1fr; gap: 2px; }
+      .route-path { min-width: unset; }
+    }
+    @media print {
+      .toc { display: none; }
+      .bug-card { page-break-inside: avoid; }
+      .page-header { background: var(--navy-900) !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="page-header-inner">
+    <div class="badge">Frontend Reference Documentation</div>
+    <h1>Enterprise Multi-Vendor<br><span>E-Commerce Marketplace</span></h1>
+    <p class="subtitle">
+      A comprehensive reference covering architecture, component relationships, state management,
+      routing, the API layer, the full checkout flow, and all 18 bugs resolved during development.
+    </p>
+    <div class="meta-row">
+      <div class="meta-item"><div class="meta-dot"></div><strong>Generated:</strong>&nbsp;June 11, 2026</div>
+      <div class="meta-item"><div class="meta-dot"></div><strong>Bugs Fixed:</strong>&nbsp;18</div>
+      <div class="meta-item"><div class="meta-dot"></div><strong>Sections:</strong>&nbsp;2</div>
+      <div class="meta-item"><div class="meta-dot"></div><strong>Scope:</strong>&nbsp;Frontend Only</div>
+    </div>
+    <div class="stack-chips">
+      <span class="chip">React 19</span>
+      <span class="chip">TypeScript</span>
+      <span class="chip">Vite</span>
+      <span class="chip">TanStack Router</span>
+      <span class="chip">TanStack Query</span>
+      <span class="chip">Zustand</span>
+      <span class="chip">Axios</span>
+      <span class="chip">Stripe.js</span>
+      <span class="chip">Tailwind CSS</span>
+      <span class="chip">React Hot Toast</span>
+      <span class="chip">Lucide React</span>
+      <span class="chip">Heroicons</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="layout">
+
+  <!-- ===== TABLE OF CONTENTS ===== -->
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul>
+      <li>
+        <a class="toc-section" href="#section-bugs">Section 1 — Bugs Fixed <span class="toc-counter">18</span></a>
+        <ul class="toc-sub">
+          <li><a href="#bug-1">1. GET /api/v1/home 404</a></li>
+          <li><a href="#bug-2">2. Cart 400 / x-session-id</a></li>
+          <li><a href="#bug-3">3. averageRating.toFixed</a></li>
+          <li><a href="#bug-4">4. Query data undefined (×17)</a></li>
+          <li><a href="#bug-5">5. OrderSummary crash</a></li>
+          <li><a href="#bug-6">6. Category filter empty</a></li>
+          <li><a href="#bug-7">7. isFeatured transform</a></li>
+          <li><a href="#bug-8">8. Order creation 400</a></li>
+          <li><a href="#bug-9">9. Stripe invalid clientSecret</a></li>
+          <li><a href="#bug-10">10. Cart not clearing</a></li>
+          <li><a href="#bug-11">11. Profile dropdown noop</a></li>
+          <li><a href="#bug-12">12. Pay button wrong amount</a></li>
+          <li><a href="#bug-13">13. Footer link scroll-jump</a></li>
+          <li><a href="#bug-14">14. Content at screen edges</a></li>
+          <li><a href="#bug-15">15. Sidebar links 404</a></li>
+          <li><a href="#bug-16">16. Customer sees vendor sidebar</a></li>
+          <li><a href="#bug-17">17. Apply Now empty data</a></li>
+          <li><a href="#bug-18">18. Re-submit application error</a></li>
+        </ul>
+      </li>
+      <li style="margin-top:12px;">
+        <a class="toc-section" href="#section-arch">Section 2 — Architecture</a>
+        <ul class="toc-sub">
+          <li><a href="#arch-structure">Project Structure</a></li>
+          <li><a href="#arch-routing">Routing</a></li>
+          <li><a href="#arch-state">State Management</a></li>
+          <li><a href="#arch-api">API Layer</a></li>
+          <li><a href="#arch-checkout">Checkout Flow</a></li>
+          <li><a href="#arch-components">Component Relationships</a></li>
+        </ul>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- ===== CONTENT ===== -->
+  <main class="content">
+
+    <!-- ============================================================
+         SECTION 1 — BUGS FIXED
+    ============================================================= -->
+    <section class="section" id="section-bugs">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🐛</div>
+        <div>
+          <div class="section-number">Section 1</div>
+          <h2>Bugs Fixed — 18 Total</h2>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-content">
+          Each bug card below documents the root cause, the fix applied, and all files changed.
+          Bugs span the full stack (API configuration, TypeScript type errors, Stripe integration,
+          React state, routing gaps, and UI regressions).
+        </div>
+      </div>
+
+      <!-- BUG 1 -->
+      <div class="bug-card" id="bug-1">
+        <div class="bug-card-header">
+          <div class="bug-number">01</div>
+          <div>
+            <div class="bug-title"><code>GET /api/v1/home</code> returns <code>404 Not Found</code></div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API / Backend</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The home endpoint that the frontend expected — <code>GET /api/v1/home</code> — was
+              never created in the backend. No route handler existed for that path, causing Express
+              to fall through to the default 404 middleware on every page load.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Created a new route file <code>backend/src/routes/home.ts</code> that handles
+              <code>GET /api/v1/home</code>. The handler returns featured products, active
+              categories, promotional banners, and site statistics. The route was then imported and
+              registered in the main Express application.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">backend/src/routes/home.ts <em>(created)</em></span>
+              <span class="file-pill">backend/src/app.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 2 -->
+      <div class="bug-card" id="bug-2">
+        <div class="bug-card-header">
+          <div class="bug-number">02</div>
+          <div>
+            <div class="bug-title"><code>GET /api/v1/cart</code> returns <code>400 Bad Request</code> — missing <code>x-session-id</code> header</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API / Backend</span>
+              <span class="tag tag-auth">Auth / Session</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              Guest cart functionality on the backend requires an <code>x-session-id</code> header
+              to identify anonymous sessions. The frontend Axios instance had no logic to generate
+              or attach this header. Additionally, CORS was configured without
+              <code>X-Session-ID</code> in its <code>allowedHeaders</code> list, so the header was
+              being stripped by CORS preflight even when manually sent.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              In the Axios request interceptor inside <code>api.ts</code>, a UUID is now generated
+              once with <code>crypto.randomUUID()</code>, stored in <code>localStorage</code> under
+              the key <code>'session-id'</code>, and automatically attached as
+              <code>x-session-id</code> on every outgoing request. On the backend, the CORS
+              configuration was updated to explicitly allow <code>X-Session-ID</code> in
+              <code>allowedHeaders</code>.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/utils/api.ts</span>
+              <span class="file-pill">backend/src/configs/app.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 3 -->
+      <div class="bug-card" id="bug-3">
+        <div class="bug-card-header">
+          <div class="bug-number">03</div>
+          <div>
+            <div class="bug-title">Runtime crash: <code>product.averageRating.toFixed is not a function</code></div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API / Backend</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              Prisma stores numeric columns like <code>averageRating</code> and <code>price</code>
+              using its internal <code>Decimal</code> type. When Prisma serializes a model to JSON
+              (e.g. in an API response), <code>Decimal</code> fields are converted to a
+              <strong>plain string</strong> rather than a JavaScript number. The frontend assumed
+              <code>averageRating</code> was a <code>number</code>, so calling
+              <code>.toFixed(1)</code> on a string threw a runtime TypeError.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Added a global override in the Prisma database config:
+              <code>Decimal.prototype.toJSON = function() &#123; return parseFloat(this.toString()); &#125;</code>
+              This ensures every <code>Decimal</code> field is serialized as a native JavaScript
+              <code>number</code> when <code>JSON.stringify</code> is called, so all callers on the
+              frontend can use numeric methods like <code>.toFixed()</code> safely.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">backend/src/configs/database.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 4 -->
+      <div class="bug-card" id="bug-4">
+        <div class="bug-card-header">
+          <div class="bug-number">04</div>
+          <div>
+            <div class="bug-title">TanStack Query error: <code>"Query data cannot be undefined"</code> — affects 17 files</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API Layer</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The Axios instance in <code>api.ts</code> uses a response interceptor that
+              <strong>already unwraps</strong> the standard API envelope
+              <code>&#123; success, data, message, meta &#125;</code>, returning the inner
+              <code>data</code> payload. All 17 affected files were still performing a second unwrap:
+              <code>api.get&lt;ApiResponse&lt;X&gt;&gt;(...).then(r =&gt; r.data.data)</code>.
+              The double-unwrap caused <code>r.data.data</code> to be <code>undefined</code> since
+              <code>r.data</code> was already the final payload — TanStack Query rejects
+              <code>undefined</code> query data by design.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              All 17 query functions were updated to the correct single-unwrap pattern:
+              <code>api.get&lt;X&gt;(...).then(r =&gt; r.data)</code>. Generic type parameters
+              were updated from <code>ApiResponse&lt;X&gt;</code> to <code>X</code> throughout,
+              removing the redundant wrapper type.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">17 service / query files</span>
+              <span class="file-pill">features/products/hooks.ts</span>
+              <span class="file-pill">features/cart/hooks.ts</span>
+              <span class="file-pill">features/orders/hooks.ts</span>
+              <span class="file-pill">features/auth/hooks.ts</span>
+              <span class="file-pill">features/vendor/hooks.ts</span>
+              <span class="file-pill">features/admin/hooks.ts</span>
+              <span class="file-pill">+ 11 more</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 5 -->
+      <div class="bug-card" id="bug-5">
+        <div class="bug-card-header">
+          <div class="bug-number">05</div>
+          <div>
+            <div class="bug-title"><code>OrderSummary</code> crashes — incorrect type wrapper around cart data</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Component</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              <code>CheckoutForm</code> was typed with a local <code>CartData</code> interface that
+              had a nested structure: <code>&#123; summary: CartSummary &#125;</code>. The template
+              accessed data as <code>cart.summary.subtotal</code>, <code>cart.summary.total</code>,
+              etc. However, the API returns a flat <code>CartSummary</code> object with no
+              <code>summary</code> key, so all property accesses on <code>cart.summary</code>
+              evaluated to <code>undefined</code>, causing downstream crashes in
+              <code>OrderSummary</code>.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Removed the intermediate <code>CartData</code> interface entirely. The
+              <code>useQuery</code> return type was changed to <code>CartSummary</code> directly.
+              All <code>cart.summary.X</code> references were replaced with <code>cart.X</code> to
+              match the flat response shape.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/checkout/CheckoutForm.tsx</span>
+              <span class="file-pill">frontend/src/types/cart.types.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 6 -->
+      <div class="bug-card" id="bug-6">
+        <div class="bug-card-header">
+          <div class="bug-number">06</div>
+          <div>
+            <div class="bug-title">Category filter returns empty results when clicking a parent category</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API / Backend</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The product repository filtered by an <strong>exact</strong>
+              <code>categoryId</code> match. The category hierarchy has parent and child
+              (subcategory) nodes, and products are only ever assigned to leaf subcategories, not
+              parent categories. Selecting a parent category produced zero results because no
+              product directly carried that parent's ID.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Added a recursive helper function <code>getCategoryDescendantIds(categoryId)</code>
+              to <code>products.repository.ts</code>. It walks the category tree downward and
+              collects all descendant IDs. The Prisma query was updated from
+              <code>categoryId: id</code> to <code>categoryId: &#123; in: categoryIds &#125;</code>,
+              where <code>categoryIds</code> is the full descendant set including the selected
+              parent.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">backend/src/repositories/products.repository.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 7 -->
+      <div class="bug-card" id="bug-7">
+        <div class="bug-card-header">
+          <div class="bug-number">07</div>
+          <div>
+            <div class="bug-title"><code>isFeatured</code> Zod transform silently applies <code>false</code> filter to all requests</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API / Backend</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The Zod schema for product query parameters defined:
+              <code>isFeatured: z.string().optional().transform(v =&gt; v === 'true')</code>.
+              When <code>isFeatured</code> was absent from the request (i.e., <code>undefined</code>),
+              the transform evaluated <code>undefined === 'true'</code> which is <code>false</code>.
+              Zod passed this <code>false</code> value through, and the database query added a
+              <code>WHERE isFeatured = false</code> clause on every request that omitted the
+              parameter — silently filtering out all featured products from regular listings.
+              The same class of bug existed in numeric query parameters such as
+              <code>minPrice</code> and <code>maxPrice</code>.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              All boolean and numeric Zod transforms were updated to preserve <code>undefined</code>
+              when the input is absent:
+              <code>transform(v =&gt; v !== undefined ? v === 'true' : undefined)</code>.
+              This ensures that an omitted filter parameter results in <code>undefined</code>, which
+              Prisma ignores entirely rather than filtering on.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">backend/src/validators/product.validators.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 8 -->
+      <div class="bug-card" id="bug-8">
+        <div class="bug-card-header">
+          <div class="bug-number">08</div>
+          <div>
+            <div class="bug-title">Order creation returns <code>400</code> — field name mismatch between frontend and backend</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-api">API / Backend</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The backend <code>createOrderSchema</code> (Zod) expected an <code>addressId</code>
+              field — a reference to a previously-saved address record in the database. The
+              frontend's checkout flow sent an inline <code>shippingAddress</code> object containing
+              street, city, state, postal code, and country directly in the request body. Zod
+              validation failed because neither shape matched.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              The <code>createOrderSchema</code> was updated to accept an inline
+              <code>shippingAddress</code> object (with a nested Zod shape matching the frontend
+              payload). The order service and TypeScript interface types were updated to reflect the
+              new shape. The frontend checkout <code>AddressForm</code> submission logic remained
+              unchanged.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">backend/src/validators/order.validators.ts</span>
+              <span class="file-pill">backend/src/services/order.service.ts</span>
+              <span class="file-pill">backend/src/types/order.types.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 9 -->
+      <div class="bug-card" id="bug-9">
+        <div class="bug-card-header">
+          <div class="bug-number">09</div>
+          <div>
+            <div class="bug-title">Stripe Elements throws <code>"invalid clientSecret"</code> for mock payment intents</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Checkout</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              When Stripe is not configured in the environment, the backend returned a mock
+              <code>clientSecret</code> formatted as <code>pi_mock_xxx_secret_demo</code>.
+              Stripe.js strictly validates the <code>clientSecret</code> format before mounting
+              <code>&lt;Elements&gt;</code>: it expects a string in the pattern
+              <code>pi_[id]_secret_[key]</code> with exactly one underscore separating each
+              segment. The extra underscores in <code>pi_mock_xxx</code> caused Stripe's internal
+              regex to reject the secret before any network call was made.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              The backend mock secret format was changed to <code>mock_&#123;orderId&#125;</code>
+              (no <code>pi_</code> prefix). In <code>CheckoutForm.tsx</code>, a guard was added:
+              if <code>clientSecret.startsWith('mock_')</code> the component skips the Stripe
+              <code>&lt;Elements&gt;</code> tree entirely and renders a
+              <strong>"Demo Mode — Complete Order"</strong> button. Clicking this button calls
+              <code>POST /payments/confirm</code> directly with a synthetic payment intent ID,
+              bypassing Stripe altogether.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/checkout/CheckoutForm.tsx</span>
+              <span class="file-pill">backend/src/services/payment.service.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 10 -->
+      <div class="bug-card" id="bug-10">
+        <div class="bug-card-header">
+          <div class="bug-number">10</div>
+          <div>
+            <div class="bug-title">Cart not cleared after successful checkout</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / State</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The <code>confirmOrderMutation.onSuccess</code> callback only called
+              <code>navigate('/order-success')</code>. It never cleared the Zustand cart store
+              (which persists to <code>localStorage</code>) nor invalidated the
+              <code>['cart']</code> TanStack Query cache. Users arriving at the order success
+              page still saw a non-zero cart count in the header, and refreshing the page
+              re-fetched stale cart data.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Added two side-effects inside <code>onSuccess</code> before navigation:
+              <code>clearLocalCart()</code> from the Zustand cart store (resets
+              <code>items</code>, <code>itemCount</code>, <code>subtotal</code>,
+              <code>total</code>) and
+              <code>queryClient.invalidateQueries(&#123; queryKey: ['cart'] &#125;)</code>
+              to force a fresh fetch from the server on next render.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/checkout/CheckoutForm.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 11 -->
+      <div class="bug-card" id="bug-11">
+        <div class="bug-card-header">
+          <div class="bug-number">11</div>
+          <div>
+            <div class="bug-title">Profile dropdown menu items do nothing when clicked</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Navigation</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              Every <code>onClick</code> handler on the profile dropdown menu items (Profile,
+              My Orders, Vendor Dashboard, Admin Panel, Sign Out) was set to the no-op arrow
+              function <code>() =&gt; &#123;&#125;</code>. This was leftover placeholder code from
+              the initial scaffold — no navigation or action was ever wired up.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Imported <code>useNavigate</code> from TanStack Router in the
+              <code>Header</code> component. Each menu item's <code>onClick</code> was wired to
+              the correct route: <code>/profile</code>, <code>/orders</code>,
+              <code>/vendor/dashboard</code>, <code>/admin</code>. The Sign Out item calls
+              <code>clearAuth()</code> from the auth store then navigates to <code>/</code>.
+              Role-based items (Vendor Dashboard, Admin Panel) are conditionally rendered using
+              <code>isVendor()</code> and <code>isAdmin()</code>.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/components/shared/Header.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 12 -->
+      <div class="bug-card" id="bug-12">
+        <div class="bug-card-header">
+          <div class="bug-number">12</div>
+          <div>
+            <div class="bug-title">Pay button shows incorrect amount (100× too large)</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Checkout</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              <code>PaymentForm</code> displayed the charge amount with the expression
+              <code>(amount / 100).toFixed(2)</code>, treating the API-returned dollar value as if
+              it were already in Stripe's smallest-unit (cents) format. The API returns
+              <code>amount</code> in dollars (e.g., <code>49.99</code>), so dividing by 100
+              produced <code>$0.50</code> instead of <code>$49.99</code>.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Changed the display expression to <code>amount.toFixed(2)</code> — no division.
+              The button now correctly shows the dollar amount returned from the order creation
+              endpoint.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/checkout/PaymentForm.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 13 -->
+      <div class="bug-card" id="bug-13">
+        <div class="bug-card-header">
+          <div class="bug-number">13</div>
+          <div>
+            <div class="bug-title">Footer links cause page scroll-to-top instead of navigation</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Navigation</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              All footer links were rendered as <code>&lt;a href="#"&gt;</code>. The
+              <code>#</code> hash navigates to the top of the current page (browser default for
+              empty anchors), producing an unwanted scroll jump. None of the links were connected
+              to TanStack Router, so clicking any footer link was non-functional.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Links with registered routes (Products, Categories, About, Contact, Terms, Privacy)
+              were replaced with TanStack Router <code>&lt;Link&gt;</code> components pointing to
+              the correct <code>to</code> path. Links for pages not yet implemented were replaced
+              with <code>&lt;span className="cursor-pointer"&gt;</code> elements so they are
+              inert — no scroll jump, no dead navigation.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/components/shared/Footer.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 14 -->
+      <div class="bug-card" id="bug-14">
+        <div class="bug-card-header">
+          <div class="bug-number">14</div>
+          <div>
+            <div class="bug-title">Page content renders flush against screen edges — no container or padding</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Layout</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The <code>&lt;main&gt;</code> element inside <code>MainLayout</code> rendered route
+              content as a full-width block with no horizontal padding or max-width constraint.
+              On wide viewports, content stretched edge-to-edge. On narrow viewports, text was
+              flush against the viewport boundary.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Wrapped the <code>&lt;Outlet /&gt;</code> inside
+              <code>&lt;div className="container-narrow py-8"&gt;</code> in
+              <code>MainLayout</code>. The <code>container-narrow</code> utility class applies
+              a <code>max-width</code> and centered horizontal margin; <code>py-8</code> adds
+              vertical breathing room above and below the page content.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/layouts/MainLayout.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 15 -->
+      <div class="bug-card" id="bug-15">
+        <div class="bug-card-header">
+          <div class="bug-number">15</div>
+          <div>
+            <div class="bug-title">Vendor and admin sidebar links return <code>404</code> — routes not registered</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Routing</span>
+              <span class="tag tag-vendor">Vendor</span>
+              <span class="tag tag-admin">Admin</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The TanStack Router route tree only defined <code>/vendor/dashboard</code> and
+              <code>/admin</code> as routes. The sidebar navigation components linked to 12
+              additional paths — <code>/vendor/products</code>, <code>/vendor/orders</code>,
+              <code>/vendor/analytics</code>, <code>/admin/users</code>,
+              <code>/admin/vendors</code>, <code>/admin/products</code>,
+              <code>/admin/orders</code>, and others — none of which had corresponding route
+              definitions. TanStack Router rendered its 404 component for every one of them.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              All 12 missing routes were registered in <code>routes/index.tsx</code>, each
+              wrapped in the appropriate role guard (<code>VendorSubRoute</code> or
+              <code>AdminRoute</code>), and mapped to their respective page components in
+              <code>pages/</code>. Stubs were created for pages that did not yet exist.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/routes/index.tsx</span>
+              <span class="file-pill">frontend/src/pages/vendor/*</span>
+              <span class="file-pill">frontend/src/pages/admin/*</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 16 -->
+      <div class="bug-card" id="bug-16">
+        <div class="bug-card-header">
+          <div class="bug-number">16</div>
+          <div>
+            <div class="bug-title">Customer users see the vendor sidebar instead of the "Become a Vendor" page</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Access Control</span>
+              <span class="tag tag-customer">Customer</span>
+              <span class="tag tag-vendor">Vendor</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              <code>VendorDashboardPage</code> was unconditionally wrapped in
+              <code>DashboardLayout</code>, which renders the sidebar navigation with vendor-specific
+              links. When a customer navigated to <code>/vendor/dashboard</code>, they saw the
+              full dashboard sidebar UI even though they are not vendors and have no vendor data
+              to display. The page should instead explain how to become a vendor.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Introduced a <code>VendorGate</code> wrapper component. It reads the current user's
+              role from <code>useAuth()</code>: if the role is <code>VENDOR</code> or
+              <code>ADMIN</code> it renders the children inside <code>DashboardLayout</code>;
+              otherwise it renders a plain "Become a Vendor" landing page with an apply CTA —
+              no sidebar, no vendor UI. <code>VendorDashboardPage</code> was wrapped with
+              <code>VendorGate</code> in the route definition.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/vendor/VendorDashboard.tsx</span>
+              <span class="file-pill">frontend/src/routes/index.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 17 -->
+      <div class="bug-card" id="bug-17">
+        <div class="bug-card-header">
+          <div class="bug-number">17</div>
+          <div>
+            <div class="bug-title">Vendor "Apply Now" button submits empty hardcoded data</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / Form</span>
+              <span class="tag tag-vendor">Vendor</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              The vendor application mutation was wired to fire immediately on button click with
+              hardcoded empty values:
+              <code>applyForVendor(&#123; businessName: '', businessEmail: '' &#125;)</code>.
+              There was no form collecting actual input from the user. Every "Apply Now" click
+              sent an invalid empty payload to the API, which rejected it with a validation error.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Replaced the single button with a complete application form using controlled React
+              state (<code>useState</code>). The form collects: business name, business email,
+              phone number, and a description/about field. On submit the form values are passed
+              to the mutation, replacing the hardcoded empty object. Basic client-side validation
+              was also added.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/vendor/VendorDashboard.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUG 18 -->
+      <div class="bug-card" id="bug-18">
+        <div class="bug-card-header">
+          <div class="bug-number">18</div>
+          <div>
+            <div class="bug-title">"Already have a vendor application" API error not handled — stale JWT causes re-submission loop</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag tag-bug">Bug</span>
+              <span class="tag tag-ui">UI / UX</span>
+              <span class="tag tag-auth">Auth / State</span>
+              <span class="tag tag-vendor">Vendor</span>
+            </div>
+          </div>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <span class="bug-label label-cause">Root Cause</span>
+            <span class="bug-value">
+              After a successful vendor application submission the backend promotes the user's
+              role to <code>VENDOR</code> in the database, but the frontend's JWT is not updated
+              in real time. The Zustand auth store still holds the old token claiming role
+              <code>CUSTOMER</code>. Subsequent visits to <code>/vendor/dashboard</code> showed
+              the application form again (because role is still <code>CUSTOMER</code> in the
+              store), and re-submitting produced a confusing backend error: "you already have a
+              pending vendor application." There was also no <code>onError</code> handler to
+              intercept or display this message gracefully.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-fix">Fix Applied</span>
+            <span class="bug-value">
+              Two changes were made together:
+              (1) <strong>onSuccess:</strong> After a successful application, call
+              <code>GET /users/me</code> immediately and dispatch <code>updateUser()</code> with
+              the fresh user object from the server. This updates the role in the Zustand auth
+              store and in <code>localStorage</code>, so the UI transitions to the vendor view
+              without requiring a page refresh or re-login.
+              (2) <strong>onError:</strong> If the API error message contains "already have a
+              vendor application", render an inline <code>&lt;PendingReview /&gt;</code> component
+              instead of showing a generic error toast. <code>PendingReview</code> displays a
+              friendly status message explaining that the application is under review.
+            </span>
+          </div>
+          <hr class="bug-divider" />
+          <div class="bug-row">
+            <span class="bug-label label-files">Files Changed</span>
+            <div class="file-list">
+              <span class="file-pill">frontend/src/features/vendor/VendorDashboard.tsx</span>
+              <span class="file-pill">frontend/src/store/auth.store.ts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECTION 2 — FRONTEND ARCHITECTURE
+    ============================================================= -->
+    <section class="section" id="section-arch">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🏗️</div>
+        <div>
+          <div class="section-number">Section 2</div>
+          <h2>Frontend Architecture</h2>
+        </div>
+      </div>
+
+      <!-- --- 2.1 Project Structure --- -->
+      <div class="subsection" id="arch-structure">
+        <h3>📁 Project Structure</h3>
+        <p>
+          The <code>frontend/src/</code> directory follows a features-first layout. Each business
+          domain (auth, cart, checkout, orders, products, vendor, admin) owns its components,
+          hooks, and related logic in <code>features/</code>. Cross-cutting concerns
+          (routing, layouts, shared UI primitives, global stores, and the API layer) live in
+          top-level sibling directories.
+        </p>
+        <div class="tree">
+<span class="dir">frontend/src/</span>
+├── <span class="dir">components/</span>
+│   ├── <span class="dir">shared/</span>           <span class="comment"># Header, Footer, Sidebar, ProtectedRoute, RoleGuard</span>
+│   └── <span class="dir">ui/</span>               <span class="comment"># Button, Avatar, Dropdown, Skeleton, Spinner, Pagination …</span>
+│
+├── <span class="dir">features/</span>
+│   ├── <span class="dir">auth/</span>             <span class="comment"># LoginForm, RegisterForm, hooks (useLogin, useRegister)</span>
+│   ├── <span class="dir">cart/</span>             <span class="comment"># CartDrawer, CartItem, useCart hook</span>
+│   ├── <span class="dir">checkout/</span>         <span class="comment"># CheckoutForm, AddressForm, PaymentForm, OrderSummary</span>
+│   ├── <span class="dir">orders/</span>           <span class="comment"># OrderList, OrderStatus badge, useOrders hook</span>
+│   ├── <span class="dir">products/</span>         <span class="comment"># ProductCard, ProductSearch, RelatedProducts, ProductReviews</span>
+│   ├── <span class="dir">vendor/</span>           <span class="comment"># VendorDashboard, VendorProducts, VendorOrders, VendorAnalytics, ProductForm</span>
+│   └── <span class="dir">admin/</span>            <span class="comment"># AdminDashboard, UserManagement, VendorApproval, ProductModeration</span>
+│
+├── <span class="dir">hooks/</span>              <span class="comment"># useAuth, usePagination, useDebounce</span>
+├── <span class="dir">layouts/</span>            <span class="comment"># MainLayout, AuthLayout, DashboardLayout</span>
+├── <span class="dir">pages/</span>              <span class="comment"># One file per route: Home, Products, ProductDetail, Cart, Checkout …</span>
+├── <span class="dir">routes/</span>
+│   └── <span class="highlight">index.tsx</span>         <span class="comment"># Complete route tree — TanStack Router code-based</span>
+├── <span class="dir">services/</span>           <span class="comment"># API service modules per domain (order.service, vendor.service …)</span>
+├── <span class="dir">store/</span>
+│   ├── <span class="highlight">auth.store.ts</span>     <span class="comment"># Zustand + persist — user, tokens, isAuthenticated</span>
+│   └── <span class="highlight">cart.store.ts</span>     <span class="comment"># Zustand + persist — items, itemCount, subtotal, isOpen</span>
+├── <span class="dir">types/</span>              <span class="comment"># TypeScript interfaces per domain</span>
+└── <span class="dir">utils/</span>
+    ├── <span class="highlight">api.ts</span>            <span class="comment"># Axios instance — interceptors, envelope unwrap</span>
+    ├── <span class="file">format.ts</span>         <span class="comment"># Currency, date, number formatters</span>
+    ├── <span class="file">cn.ts</span>             <span class="comment"># Tailwind className merge utility</span>
+    └── <span class="file">storage.ts</span>        <span class="comment"># localStorage helpers</span>
+        </div>
+
+        <div class="callout callout-tip" style="margin-top:18px;">
+          <span class="callout-icon">💡</span>
+          <div class="callout-content">
+            <strong>Convention:</strong> Every feature directory is self-contained.
+            A feature should not import from another feature's internals.
+            Cross-feature communication happens through shared stores (<code>store/</code>),
+            shared hooks (<code>hooks/</code>), or shared UI primitives
+            (<code>components/ui/</code>).
+          </div>
+        </div>
+      </div>
+
+      <!-- --- 2.2 Routing Architecture --- -->
+      <div class="subsection" id="arch-routing">
+        <h3>🗺️ Routing Architecture</h3>
+        <p>
+          Routing is handled entirely by <strong>TanStack Router</strong> using a
+          <em>code-based</em> route tree defined in <code>routes/index.tsx</code>. There are no
+          file-based conventions. Three distinct layout branches exist; each branch applies
+          different chrome (header, sidebar, auth card) and different access guards.
+        </p>
+
+        <div class="two-col">
+          <div class="arch-card">
+            <h3>🌐 mainLayoutRoute</h3>
+            <p>
+              Wraps all public-facing and customer pages. Renders a sticky header, a centred
+              container, and a footer. Used for: Home, Products, Product Detail, Cart,
+              Checkout, Orders, Profile, static pages.
+            </p>
+          </div>
+          <div class="arch-card">
+            <h3>🔐 authLayoutRoute</h3>
+            <p>
+              Centered card layout — no header or footer. Used exclusively for:
+              Login, Register, Forgot Password, Reset Password.
+            </p>
+          </div>
+        </div>
+
+        <div class="arch-card">
+          <h3>🏢 Vendor / Admin Sub-routes</h3>
+          <p>
+            Vendor and admin pages do not use a separate top-level layout route. Instead, the
+            route component itself is wrapped in a role-aware gate:
+          </p>
+          <ul style="font-size:0.875rem; color:var(--text-secondary); padding-left:20px; line-height:1.9;">
+            <li><strong>VendorGate</strong> — Reads the user's role. Renders <code>DashboardLayout</code> (sidebar) for VENDOR/ADMIN; renders a plain "Become a Vendor" page for CUSTOMER.</li>
+            <li><strong>VendorSubRoute</strong> — Strict guard; redirects non-vendors to <code>/vendor/dashboard</code> (which then lands on the gate).</li>
+            <li><strong>AdminRoute</strong> — Strict guard; redirects non-admins to <code>/</code>.</li>
+          </ul>
+        </div>
+
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin-top:10px; margin-bottom:14px;">
+          Route guard wrappers — all three are React components wrapping <code>&lt;Outlet /&gt;</code>:
+        </p>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Guard Component</th>
+                <th>Condition</th>
+                <th>Redirect On Fail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ProtectedRoute</code></td>
+                <td><code>isAuthenticated === true</code></td>
+                <td><code>/login?redirect=...</code></td>
+              </tr>
+              <tr>
+                <td><code>RoleGuard</code></td>
+                <td>User role matches required role prop</td>
+                <td><code>/</code> (or configurable)</td>
+              </tr>
+              <tr>
+                <td><code>VendorGate</code></td>
+                <td>Role is VENDOR or ADMIN → DashboardLayout; CUSTOMER → Apply page</td>
+                <td>N/A (renders alternative UI)</td>
+              </tr>
+              <tr>
+                <td><code>VendorSubRoute</code></td>
+                <td>Role is VENDOR or ADMIN</td>
+                <td><code>/vendor/dashboard</code></td>
+              </tr>
+              <tr>
+                <td><code>AdminRoute</code></td>
+                <td>Role is ADMIN</td>
+                <td><code>/</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:12px;"><strong>Registered route tree (selected):</strong></p>
+        <div style="background:var(--bg-white); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
+          <div class="route-item"><span class="route-path">/</span><span class="route-component">HomePage</span><span class="route-guard guard-public">public</span></div>
+          <div class="route-item"><span class="route-path">/products</span><span class="route-component">ProductsPage</span><span class="route-guard guard-public">public</span></div>
+          <div class="route-item"><span class="route-path">/products/:slug</span><span class="route-component">ProductDetailPage</span><span class="route-guard guard-public">public</span></div>
+          <div class="route-item"><span class="route-path">/cart</span><span class="route-component">CartPage</span><span class="route-guard guard-public">public</span></div>
+          <div class="route-item"><span class="route-path">/checkout</span><span class="route-component">CheckoutPage → ProtectedRoute</span><span class="route-guard guard-auth">auth required</span></div>
+          <div class="route-item"><span class="route-path">/orders</span><span class="route-component">OrdersPage → ProtectedRoute</span><span class="route-guard guard-auth">auth required</span></div>
+          <div class="route-item"><span class="route-path">/orders/:id</span><span class="route-component">OrderDetailPage → ProtectedRoute</span><span class="route-guard guard-auth">auth required</span></div>
+          <div class="route-item"><span class="route-path">/profile</span><span class="route-component">ProfilePage → ProtectedRoute</span><span class="route-guard guard-auth">auth required</span></div>
+          <div class="route-item"><span class="route-path">/order-success</span><span class="route-component">OrderSuccessPage → ProtectedRoute</span><span class="route-guard guard-auth">auth required</span></div>
+          <div class="route-item"><span class="route-path">/login</span><span class="route-component">LoginPage (AuthLayout)</span><span class="route-guard guard-public">public</span></div>
+          <div class="route-item"><span class="route-path">/register</span><span class="route-component">RegisterPage (AuthLayout)</span><span class="route-guard guard-public">public</span></div>
+          <div class="route-item"><span class="route-path">/vendor/dashboard</span><span class="route-component">VendorDashboardPage → VendorGate</span><span class="route-guard guard-auth">auth required</span></div>
+          <div class="route-item"><span class="route-path">/vendor/products</span><span class="route-component">VendorProductsPage → VendorSubRoute</span><span class="route-guard guard-vendor">vendor</span></div>
+          <div class="route-item"><span class="route-path">/vendor/orders</span><span class="route-component">VendorOrdersPage → VendorSubRoute</span><span class="route-guard guard-vendor">vendor</span></div>
+          <div class="route-item"><span class="route-path">/vendor/analytics</span><span class="route-component">VendorAnalyticsPage → VendorSubRoute</span><span class="route-guard guard-vendor">vendor</span></div>
+          <div class="route-item"><span class="route-path">/admin</span><span class="route-component">AdminDashboardPage → AdminRoute</span><span class="route-guard guard-admin">admin</span></div>
+          <div class="route-item"><span class="route-path">/admin/users</span><span class="route-component">UserManagementPage → AdminRoute</span><span class="route-guard guard-admin">admin</span></div>
+          <div class="route-item"><span class="route-path">/admin/vendors</span><span class="route-component">VendorApprovalPage → AdminRoute</span><span class="route-guard guard-admin">admin</span></div>
+          <div class="route-item"><span class="route-path">/admin/products</span><span class="route-component">ProductModerationPage → AdminRoute</span><span class="route-guard guard-admin">admin</span></div>
+          <div class="route-item"><span class="route-path">/admin/orders</span><span class="route-component">AdminOrdersPage → AdminRoute</span><span class="route-guard guard-admin">admin</span></div>
+        </div>
+      </div>
+
+      <!-- --- 2.3 State Management --- -->
+      <div class="subsection" id="arch-state">
+        <h3>🗃️ State Management</h3>
+        <p>
+          Global client state is managed by two <strong>Zustand</strong> stores, both configured
+          with the <code>persist</code> middleware to survive page refreshes. Server state
+          (products, orders, cart data from the API) is managed by
+          <strong>TanStack Query</strong>.
+        </p>
+
+        <div class="store-box">
+          <div class="store-box-header">
+            🔐 auth.store — persisted to localStorage key <code>'auth-store'</code>
+          </div>
+          <div class="store-box-body">
+            <div class="store-field">
+              <span class="store-field-name">user</span>
+              <span class="store-field-type">User | null</span>
+              <span class="store-field-desc">Full user profile object (id, email, name, role, avatar)</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">accessToken</span>
+              <span class="store-field-type">string | null</span>
+              <span class="store-field-desc">JWT access token injected into every API request via Authorization header</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">refreshToken</span>
+              <span class="store-field-type">string | null</span>
+              <span class="store-field-desc">JWT refresh token used to obtain a new access token on 401</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">isAuthenticated</span>
+              <span class="store-field-type">boolean</span>
+              <span class="store-field-desc">Derived from whether accessToken and user are non-null</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">setAuth()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Sets user + both tokens on login / token refresh</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">updateUser()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Partially updates the user object (used after /users/me refresh — Bug 18)</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">clearAuth()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Resets all fields to null/false on logout or 401</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">setAccessToken()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Updates only the access token after a silent refresh</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="store-box" style="margin-top:16px;">
+          <div class="store-box-header">
+            🛒 cart.store — persisted to localStorage (isOpen excluded)
+          </div>
+          <div class="store-box-body">
+            <div class="store-field">
+              <span class="store-field-name">items</span>
+              <span class="store-field-type">CartItem[]</span>
+              <span class="store-field-desc">Array of cart line items (productId, quantity, price, name, image)</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">itemCount</span>
+              <span class="store-field-type">number</span>
+              <span class="store-field-desc">Total quantity of all items — displayed in the header badge</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">subtotal</span>
+              <span class="store-field-type">number</span>
+              <span class="store-field-desc">Sum of item prices before discounts/shipping</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">total</span>
+              <span class="store-field-type">number</span>
+              <span class="store-field-desc">Final amount including tax, shipping, coupon deductions</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">coupon</span>
+              <span class="store-field-type">Coupon | null</span>
+              <span class="store-field-desc">Applied coupon code and discount amount if present</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">isOpen</span>
+              <span class="store-field-type">boolean</span>
+              <span class="store-field-desc">Controls CartDrawer slide-over visibility — NOT persisted</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">setCart()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Syncs full cart data from the server response into the store</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">clearLocalCart()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Resets items/count/totals to zero — called on checkout success (Bug 10)</span>
+            </div>
+            <div class="store-field">
+              <span class="store-field-name">toggleCart()</span>
+              <span class="store-field-type">action</span>
+              <span class="store-field-desc">Flips isOpen — called from cart icon in Header</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info" style="margin-top:18px;">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-content">
+            <strong>Pattern:</strong> Zustand stores hold <em>UI state</em> and
+            <em>auth credentials</em>. Actual server data (product lists, order history, cart
+            contents from the API) is always fetched and cached by TanStack Query.
+            The cart store is synced via <code>setCart()</code> inside the cart query's
+            <code>onSuccess</code> callback, making the store a projection of server state
+            rather than the source of truth.
+          </div>
+        </div>
+      </div>
+
+      <!-- --- 2.4 API Layer --- -->
+      <div class="subsection" id="arch-api">
+        <h3>🔌 API Layer — <code>utils/api.ts</code></h3>
+        <p>
+          A single <strong>Axios instance</strong> is the only mechanism for all HTTP calls.
+          It handles authentication, session tracking, response normalisation, and automatic
+          logout on 401. No raw <code>fetch()</code> calls exist in the codebase.
+        </p>
+
+        <pre><span class="cm">// Axios instance — simplified illustration</span>
+<span class="kw">const</span> <span class="var">api</span> <span class="op">=</span> <span class="fn">axios</span>.<span class="fn">create</span>({
+  <span class="prop">baseURL</span>: <span class="fn">import</span>.<span class="prop">meta</span>.<span class="prop">env</span>.<span class="prop">VITE_API_URL</span>,
+  <span class="prop">headers</span>: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+});
+
+<span class="cm">// ── Request interceptor ──────────────────────────────────────</span>
+<span class="var">api</span>.<span class="prop">interceptors</span>.<span class="prop">request</span>.<span class="fn">use</span>((<span class="var">config</span>) <span class="op">=&gt;</span> {
+  <span class="cm">// 1. Auth token</span>
+  <span class="kw">const</span> <span class="var">token</span> <span class="op">=</span> <span class="fn">useAuthStore</span>.<span class="fn">getState</span>().<span class="prop">accessToken</span>;
+  <span class="kw">if</span> (<span class="var">token</span>) <span class="var">config</span>.<span class="prop">headers</span>.<span class="prop">Authorization</span> <span class="op">=</span> <span class="str">`Bearer <span class="op">${</span><span class="var">token</span><span class="op">}</span>`</span>;
+
+  <span class="cm">// 2. Guest session tracking (Bug #2 fix)</span>
+  <span class="kw">let</span> <span class="var">sessionId</span> <span class="op">=</span> <span class="fn">localStorage</span>.<span class="fn">getItem</span>(<span class="str">'session-id'</span>);
+  <span class="kw">if</span> (<span class="op">!</span><span class="var">sessionId</span>) {
+    <span class="var">sessionId</span> <span class="op">=</span> <span class="fn">crypto</span>.<span class="fn">randomUUID</span>();
+    <span class="fn">localStorage</span>.<span class="fn">setItem</span>(<span class="str">'session-id'</span>, <span class="var">sessionId</span>);
+  }
+  <span class="var">config</span>.<span class="prop">headers</span>[<span class="str">'x-session-id'</span>] <span class="op">=</span> <span class="var">sessionId</span>;
+  <span class="kw">return</span> <span class="var">config</span>;
+});
+
+<span class="cm">// ── Response interceptor ─────────────────────────────────────</span>
+<span class="var">api</span>.<span class="prop">interceptors</span>.<span class="prop">response</span>.<span class="fn">use</span>(
+  (<span class="var">response</span>) <span class="op">=&gt;</span> {
+    <span class="cm">// Unwrap API envelope: { success, data, message, meta }</span>
+    <span class="cm">// Returns the inner payload — callers use api.get&lt;T&gt;().then(r =&gt; r.data)</span>
+    <span class="kw">return</span> <span class="var">response</span>.<span class="prop">data</span>;
+  },
+  (<span class="var">error</span>) <span class="op">=&gt;</span> {
+    <span class="kw">if</span> (<span class="var">error</span>.<span class="prop">response</span>?.<span class="prop">status</span> <span class="op">===</span> <span class="num">401</span>) {
+      <span class="cm">// Trigger global logout — ProtectedRoute listens for this event</span>
+      <span class="fn">window</span>.<span class="fn">dispatchEvent</span>(<span class="kw">new</span> <span class="ty">Event</span>(<span class="str">'auth:logout'</span>));
+    }
+    <span class="kw">return</span> <span class="ty">Promise</span>.<span class="fn">reject</span>(<span class="var">error</span>);
+  }
+);
+<span class="lang-label">TypeScript</span></pre>
+
+        <div class="table-wrapper" style="margin-top:16px;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Caller Pattern</th><th>Return Type</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>api.get&lt;User&gt;('/users/me')</code></td>
+                <td><code>Promise&lt;&#123; data: User, meta?, success, message &#125;&gt;</code></td>
+                <td>Use <code>.then(r =&gt; r.data)</code> to get the User</td>
+              </tr>
+              <tr>
+                <td><code>api.get&lt;Product[]&gt;('/products')</code></td>
+                <td><code>Promise&lt;&#123; data: Product[], meta: PaginationMeta &#125;&gt;</code></td>
+                <td><code>meta</code> carries pagination info</td>
+              </tr>
+              <tr>
+                <td><code>api.post&lt;Order&gt;('/orders', body)</code></td>
+                <td><code>Promise&lt;&#123; data: Order &#125;&gt;</code></td>
+                <td>Mutations follow the same pattern</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- --- 2.5 Checkout Flow --- -->
+      <div class="subsection" id="arch-checkout">
+        <h3>💳 Checkout Flow</h3>
+        <p>
+          The checkout experience is a multi-step process orchestrated entirely within
+          <code>CheckoutForm.tsx</code>. It progresses from address collection to payment
+          and finally order confirmation, with a special Demo Mode path when Stripe is not
+          configured.
+        </p>
+
+        <div class="flow">
+          <div class="flow-step">
+            <div class="step-num">Step 1</div>
+            <div class="step-title">Address Form</div>
+            <div class="step-detail">User fills inline shipping address fields. <code>handleAddressSubmit</code> fires.</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="step-num">Step 2</div>
+            <div class="step-title">POST /orders</div>
+            <div class="step-detail">Sends <code>&#123; shippingAddress, couponCode &#125;</code> → receives <code>&#123; orderId, clientSecret, amount &#125;</code>.</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="step-num">Step 3</div>
+            <div class="step-title">Payment Gate</div>
+            <div class="step-detail">If <code>clientSecret.startsWith('mock_')</code> → Demo Mode button. Otherwise → Stripe Elements.</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="step-num">Step 4</div>
+            <div class="step-title">stripe.confirmPayment()</div>
+            <div class="step-detail">Stripe.js handles card tokenisation. Returns <code>paymentIntent.id</code> on success.</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="step-num">Step 5</div>
+            <div class="step-title">POST /payments/confirm</div>
+            <div class="step-detail">Sends <code>&#123; orderId, paymentIntentId &#125;</code>. Backend marks order CONFIRMED.</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="step-num">Step 6</div>
+            <div class="step-title">Cleanup &amp; Navigate</div>
+            <div class="step-detail"><code>clearLocalCart()</code> + invalidate <code>['cart']</code> query → <code>/order-success</code>.</div>
+          </div>
+        </div>
+
+        <pre><span class="cm">// CheckoutForm — abridged confirm flow</span>
+<span class="kw">const</span> <span class="var">confirmMutation</span> <span class="op">=</span> <span class="fn">useMutation</span>({
+  <span class="prop">mutationFn</span>: ({ <span class="var">orderId</span>, <span class="var">paymentIntentId</span> }) <span class="op">=&gt;</span>
+    <span class="fn">confirmOrder</span>({ <span class="var">orderId</span>, <span class="var">paymentIntentId</span> }),
+
+  <span class="prop">onSuccess</span>: () <span class="op">=&gt;</span> {
+    <span class="fn">clearLocalCart</span>();                              <span class="cm">// Bug #10 fix</span>
+    <span class="var">queryClient</span>.<span class="fn">invalidateQueries</span>({ <span class="prop">queryKey</span>: [<span class="str">'cart'</span>] });
+    <span class="fn">navigate</span>({ <span class="prop">to</span>: <span class="str">'/order-success'</span> });
+  },
+});
+
+<span class="cm">// Demo Mode path (Bug #9 fix)</span>
+<span class="kw">if</span> (<span class="var">clientSecret</span>.<span class="fn">startsWith</span>(<span class="str">'mock_'</span>)) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="ty">DemoModeButton</span>
+      <span class="prop">onClick</span><span class="op">={() =&gt;</span> <span class="var">confirmMutation</span>.<span class="fn">mutate</span>({
+        <span class="prop">orderId</span>,
+        <span class="prop">paymentIntentId</span>: <span class="str">`demo_</span><span class="op">${</span><span class="fn">Date</span>.<span class="fn">now</span>()<span class="op">}</span><span class="str">`</span>,
+      })<span class="op">}</span>
+    <span class="op">/&gt;</span>
+  );
+}
+<span class="lang-label">TypeScript</span></pre>
+      </div>
+
+      <!-- --- 2.6 Component Relationships --- -->
+      <div class="subsection" id="arch-components">
+        <h3>🔗 Key Component Relationships</h3>
+        <p>
+          The following diagrams and descriptions trace the data flows for the most
+          architecturally significant component clusters.
+        </p>
+
+        <!-- Header -->
+        <div class="arch-card">
+          <h3>🧭 Header Component</h3>
+          <p>
+            <code>Header</code> is the single most connected component in the application. It
+            consumes both global stores and exposes role-aware navigation.
+          </p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Dependency</th><th>What It Provides</th><th>Used For</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>useAuth()</code></td>
+                  <td><code>user</code>, <code>isAuthenticated</code>, <code>clearAuth</code>, <code>isAdmin()</code>, <code>isVendor()</code></td>
+                  <td>Show/hide login button, build role-based dropdown menu items, handle Sign Out</td>
+                </tr>
+                <tr>
+                  <td><code>useCartStore()</code></td>
+                  <td><code>itemCount</code>, <code>toggleCart</code></td>
+                  <td>Cart icon badge counter; open/close CartDrawer on click</td>
+                </tr>
+                <tr>
+                  <td><code>useNavigate()</code></td>
+                  <td>TanStack Router navigate function</td>
+                  <td>Profile dropdown item navigation (Bug #11 fix)</td>
+                </tr>
+                <tr>
+                  <td><code>&lt;Dropdown&gt;</code></td>
+                  <td>UI primitive from <code>components/ui/</code></td>
+                  <td>User avatar menu with profile, orders, role-specific pages</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Products Page -->
+        <div class="arch-card">
+          <h3>🔍 ProductSearch / Products Page — URL-driven Filter State</h3>
+          <p>
+            Filter state (search query, category, price range, sort) lives exclusively in the
+            URL as search params, not in local component state. This makes every filtered
+            view shareable via link and navigable via the browser back button.
+          </p>
+          <ul style="font-size:0.875rem; color:var(--text-secondary); padding-left:20px; line-height:1.9;">
+            <li><strong>Reading state:</strong> <code>useSearch()</code> from TanStack Router returns the current URL search params as a typed object.</li>
+            <li><strong>Writing state:</strong> <code>useNavigate()</code> is called with the updated params object whenever a filter changes — no <code>setState</code>.</li>
+            <li><strong>Data fetching:</strong> <code>useQuery(['products', filters])</code> re-fires whenever <code>filters</code> (derived from URL params) changes.</li>
+            <li><strong>Debouncing:</strong> The text search input passes through <code>useDebounce(value, 400)</code> before being written to the URL, preventing excessive requests on keystroke.</li>
+            <li><strong>Pagination:</strong> <code>page</code> and <code>limit</code> are also URL params; the <code>&lt;Pagination&gt;</code> component writes them via <code>useNavigate</code>.</li>
+          </ul>
+        </div>
+
+        <!-- Cart System -->
+        <div class="arch-card">
+          <h3>🛒 Cart System — Dual-Layer Architecture</h3>
+          <p>
+            The cart operates with two layers that stay in sync: a Zustand store
+            (for instant UI access, e.g. header badge) and a TanStack Query cache
+            (authoritative server data).
+          </p>
+          <div class="flow" style="flex-wrap:wrap;">
+            <div class="flow-step" style="min-width:110px;">
+              <div class="step-num">Client</div>
+              <div class="step-title">Zustand cart.store</div>
+              <div class="step-detail">Persisted, immediate access for badge count and CartDrawer state</div>
+            </div>
+            <div class="flow-arrow">⟵ setCart()</div>
+            <div class="flow-step" style="min-width:110px;">
+              <div class="step-num">Cache</div>
+              <div class="step-title">TanStack Query ['cart']</div>
+              <div class="step-detail">Fetches <code>GET /cart</code>; <code>onSuccess</code> calls <code>setCart()</code></div>
+            </div>
+            <div class="flow-arrow">⟵ x-session-id</div>
+            <div class="flow-step" style="min-width:110px;">
+              <div class="step-num">Server</div>
+              <div class="step-title">GET /api/v1/cart</div>
+              <div class="step-detail">Identifies session via header; returns CartSummary with items + totals</div>
+            </div>
+          </div>
+          <ul style="font-size:0.875rem; color:var(--text-secondary); padding-left:20px; line-height:1.9; margin-top:12px;">
+            <li><strong>CartDrawer</strong> is a slide-over panel rendered at the root layout level, toggled by <code>cartStore.isOpen</code>.</li>
+            <li><strong>Guest sessions:</strong> The <code>x-session-id</code> UUID in localStorage ties anonymous cart data on the server to this browser tab.</li>
+            <li><strong>Mutation side-effects:</strong> All add/remove/update cart mutations call <code>queryClient.invalidateQueries(['cart'])</code> on success to trigger a refetch and re-sync the Zustand store.</li>
+          </ul>
+        </div>
+
+        <!-- CheckoutForm -->
+        <div class="arch-card">
+          <h3>📦 CheckoutForm — Dependency Map</h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Hook / Dependency</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>useQuery(['cart'])</code></td>
+                  <td>Loads CartSummary to populate OrderSummary sidebar (items + totals)</td>
+                </tr>
+                <tr>
+                  <td><code>useMutation(createOrder)</code></td>
+                  <td>POSTs address → receives <code>clientSecret</code>, <code>orderId</code>, <code>amount</code></td>
+                </tr>
+                <tr>
+                  <td><code>useMutation(confirmOrder)</code></td>
+                  <td>POSTs payment confirmation; <code>onSuccess</code> clears cart and navigates</td>
+                </tr>
+                <tr>
+                  <td><code>useCartStore().clearLocalCart()</code></td>
+                  <td>Clears Zustand cart store after order success (Bug #10 fix)</td>
+                </tr>
+                <tr>
+                  <td><code>queryClient.invalidateQueries</code></td>
+                  <td>Forces cart refetch after checkout to sync server state (Bug #10 fix)</td>
+                </tr>
+                <tr>
+                  <td><code>loadStripe()</code> + <code>&lt;Elements&gt;</code></td>
+                  <td>Wraps PaymentForm with Stripe.js context when clientSecret is real</td>
+                </tr>
+                <tr>
+                  <td><code>clientSecret.startsWith('mock_')</code></td>
+                  <td>Demo Mode guard — bypasses Stripe Elements (Bug #9 fix)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Auth Store / useAuth -->
+        <div class="arch-card">
+          <h3>🔐 Auth Store — Consumer Map</h3>
+          <p>
+            The <code>useAuth()</code> hook is a thin selector wrapper over
+            <code>useAuthStore()</code> that exposes computed helpers alongside raw state.
+          </p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Consumer</th><th>Uses From Auth Store</th></tr></thead>
+              <tbody>
+                <tr><td><code>Header</code></td><td><code>user</code>, <code>isAuthenticated</code>, <code>clearAuth</code>, <code>isAdmin()</code>, <code>isVendor()</code></td></tr>
+                <tr><td><code>ProtectedRoute</code></td><td><code>isAuthenticated</code> — redirects to login if false</td></tr>
+                <tr><td><code>RoleGuard</code></td><td><code>user.role</code> — redirects if role does not match required</td></tr>
+                <tr><td><code>VendorGate</code></td><td><code>user.role</code> — shows DashboardLayout or apply page</td></tr>
+                <tr><td><code>api.ts</code> (interceptor)</td><td><code>accessToken</code> — injected into every outgoing request</td></tr>
+                <tr><td><code>VendorDashboard</code></td><td><code>updateUser()</code> — refreshes role after vendor application (Bug #18 fix)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== PAGE FOOTER ===== -->
+<footer class="page-footer">
+  <p>Enterprise Multi-Vendor E-Commerce Marketplace — Frontend Reference</p>
+  <p style="margin-top:6px;">
+    Stack: React 19 · TypeScript · Vite · TanStack Router · TanStack Query · Zustand · Axios · Stripe.js · Tailwind CSS
+  </p>
+  <p style="margin-top:6px; font-size:0.73rem;">Generated June 11, 2026 · Internal documentation · Not for distribution</p>
+</footer>
+
+</body>
+</html>

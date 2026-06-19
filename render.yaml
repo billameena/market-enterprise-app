@@ -1,0 +1,96 @@
+services:
+  - type: web
+    name: marketplace-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      # Database (Supabase Session Pooler URL)
+      - key: DATABASE_URL
+        sync: false
+      # Redis (Upstash — get these from upstash.com dashboard)
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: REDIS_TLS
+        value: "true"
+      - key: REDIS_KEY_PREFIX
+        value: "marketplace:"
+      - key: REDIS_DB
+        value: "0"
+      # JWT — copy the full multiline key values from your local .env
+      - key: JWT_PRIVATE_KEY
+        sync: false
+      - key: JWT_PUBLIC_KEY
+        sync: false
+      - key: JWT_ACCESS_TOKEN_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_TOKEN_EXPIRY
+        value: 7d
+      - key: JWT_ISSUER
+        value: enterprise-marketplace
+      - key: JWT_AUDIENCE
+        value: marketplace-users
+      # URLs — set after Vercel deploy gives you the frontend URL
+      - key: APP_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      # Email (use Brevo/Resend free tier for production, or leave as-is to skip emails)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_NAME
+        value: "Enterprise Marketplace"
+      - key: SMTP_FROM_EMAIL
+        value: "noreply@marketplace.com"
+      # Stripe (leave as placeholder if not using real payments)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_CURRENCY
+        value: usd
+      # Cloudinary (leave as placeholder if not using image uploads)
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      # AI
+      - key: GEMINI_API_KEY
+        sync: false
+      # Security
+      - key: BCRYPT_SALT_ROUNDS
+        value: "12"
+      - key: SESSION_SECRET
+        sync: false
+      - key: MAX_LOGIN_ATTEMPTS
+        value: "5"
+      # Platform
+      - key: DEFAULT_COMMISSION_RATE
+        value: "10"
+      - key: PLATFORM_TAX_RATE
+        value: "8"
+      - key: FREE_SHIPPING_THRESHOLD
+        value: "50"
+      - key: DEFAULT_PAGE_SIZE
+        value: "20"
+      - key: LOG_LEVEL
+        value: info

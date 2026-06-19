@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Architecture — Enterprise Multi-Vendor E-Commerce Marketplace</title>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-light: #1b2e45;
+    --navy-mid: #162436;
+    --accent: #4fc3f7;
+    --accent2: #81d4fa;
+    --green: #a8e6cf;
+    --orange: #ffcc80;
+    --purple: #ce93d8;
+    --red: #ef9a9a;
+    --yellow: #fff176;
+    --bg: #f4f7fb;
+    --bg-card: #ffffff;
+    --text: #1a2332;
+    --text-muted: #5a6a7e;
+    --border: #dde4ef;
+    --code-bg: #111b27;
+    --code-border: #1e3050;
+    --tag-bg: #e3f2fd;
+    --tag-text: #1565c0;
+    --badge-green: #e8f5e9;
+    --badge-green-text: #2e7d32;
+    --badge-orange: #fff3e0;
+    --badge-orange-text: #e65100;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, #0a2540 60%, #0d3260 100%);
+    color: #fff;
+    padding: 56px 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(79,195,247,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 20%;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(129,212,250,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+  .header-tag {
+    display: inline-block;
+    background: rgba(79,195,247,0.18);
+    border: 1px solid rgba(79,195,247,0.35);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+  header h1 {
+    font-size: clamp(24px, 4vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    color: rgba(255,255,255,0.72);
+    font-size: 15px;
+    max-width: 640px;
+    margin-bottom: 24px;
+  }
+  .stack-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 14px;
+  }
+  .pill.accent { background: rgba(79,195,247,0.15); border-color: rgba(79,195,247,0.3); color: var(--accent2); }
+
+  /* ── Layout ── */
+  .layout { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 240px 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ── TOC ── */
+  .toc {
+    position: sticky;
+    top: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .toc h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc ol { list-style: none; counter-reset: toc-counter; }
+  .toc li { counter-increment: toc-counter; margin-bottom: 2px; }
+  .toc a {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toc a::before {
+    content: counter(toc-counter);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--tag-bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .toc a:hover { background: var(--bg); color: #1565c0; }
+
+  /* ── Main content ── */
+  main { min-width: 0; }
+
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 36px 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-num {
+    background: linear-gradient(135deg, var(--navy), #1565c0);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 21px;
+    font-weight: 750;
+    color: var(--navy);
+    letter-spacing: -0.3px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 28px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 18px 0 8px;
+  }
+  p { margin-bottom: 12px; color: var(--text); }
+  ul, ol { padding-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 5px; }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 10px;
+    margin: 14px 0 18px;
+    overflow: hidden;
+  }
+  .code-label {
+    background: #162436;
+    padding: 7px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--code-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-label::before {
+    content: '';
+    display: inline-flex;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4fc3f7;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+  pre {
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #cdd6f4;
+    tab-size: 2;
+  }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+  }
+  p code, li code {
+    background: #e8f0f8;
+    color: #1a3a6b;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    border: 1px solid #c5d5e8;
+  }
+  /* Syntax colors */
+  .kw  { color: #89b4fa; } /* keyword - blue */
+  .fn  { color: #cba6f7; } /* function - purple */
+  .str { color: #a6e3a1; } /* string - green */
+  .num { color: #fab387; } /* number - orange */
+  .cmt { color: #6c7086; font-style: italic; } /* comment - gray */
+  .typ { color: #94e2d5; } /* type - teal */
+  .prp { color: #89dceb; } /* property - cyan */
+  .pun { color: #cdd6f4; } /* punctuation */
+  .var { color: #f5c2e7; } /* variable - pink */
+  .dec { color: #f38ba8; } /* decorator/annotation - red */
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; margin-bottom: 4px; font-size: 13px; }
+  .callout.info { background: #e3f2fd; border-left: 3px solid #1976d2; color: #0d47a1; }
+  .callout.warning { background: #fff8e1; border-left: 3px solid #f9a825; color: #4e3000; }
+  .callout.success { background: #e8f5e9; border-left: 3px solid #388e3c; color: #1b5e20; }
+  .callout.critical { background: #fce4ec; border-left: 3px solid #c62828; color: #7f0000; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; margin: 14px 0 18px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead { background: var(--navy-mid); color: #fff; }
+  thead th {
+    padding: 11px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: #f8fafd; }
+  td { padding: 10px 16px; vertical-align: top; }
+  td code { font-size: 12px; }
+
+  /* ── Flow diagram ── */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+  .flow-step {
+    background: #1b2e45;
+    border: 1px solid #2a4060;
+    color: #cdd6f4;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 13px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .flow-arrow {
+    color: #4fc3f7;
+    font-size: 16px;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── Directory tree ── */
+  .dir-tree {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #cdd6f4;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+  .dir-folder { color: #89b4fa; }
+  .dir-file   { color: #a6e3a1; }
+  .dir-comment{ color: #6c7086; font-style: italic; }
+  .dir-line   { color: #45475a; }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 10px;
+    letter-spacing: 0.4px;
+    margin: 0 2px;
+  }
+  .badge-blue  { background: #e3f2fd; color: #1565c0; }
+  .badge-green { background: var(--badge-green); color: var(--badge-green-text); }
+  .badge-orange{ background: var(--badge-orange); color: var(--badge-orange-text); }
+  .badge-purple{ background: #f3e5f5; color: #6a1b9a; }
+  .badge-red   { background: #fce4ec; color: #ad1457; }
+
+  /* ── Subsection grid ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 16px 0; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .card h4 { margin-top: 0; color: var(--navy); font-size: 13.5px; }
+  .card p { font-size: 13px; margin-bottom: 6px; }
+
+  /* ── hr ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+
+  /* ── Option blocks ── */
+  .option-block {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 12px 0;
+    overflow: hidden;
+  }
+  .option-header {
+    background: var(--navy-mid);
+    color: #fff;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .option-num {
+    background: var(--accent);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .option-body { padding: 16px; font-size: 13.5px; }
+  .option-body ol { margin-bottom: 10px; }
+  .option-body li { margin-bottom: 6px; }
+
+  /* ── Payment flow steps ── */
+  .flow-steps { margin: 14px 0; }
+  .flow-step-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    background: linear-gradient(135deg, var(--navy), #1565c0);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { display: block; margin-bottom: 3px; color: var(--navy); font-size: 14px; }
+  .step-content p { margin: 0; font-size: 13.5px; }
+
+  /* scrollbar */
+  pre::-webkit-scrollbar { height: 6px; }
+  pre::-webkit-scrollbar-track { background: #0a1520; }
+  pre::-webkit-scrollbar-thumb { background: #2a4060; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-tag">Technical Reference</div>
+    <h1>Backend Architecture<br><span>Enterprise Multi-Vendor E-Commerce Marketplace</span></h1>
+    <p>A comprehensive reference for the Node.js/TypeScript backend — covering module structure, authentication, database patterns, background jobs, payments, and more.</p>
+    <div class="stack-pills">
+      <span class="pill accent">Node.js</span>
+      <span class="pill accent">TypeScript</span>
+      <span class="pill accent">Express.js</span>
+      <span class="pill accent">Prisma ORM</span>
+      <span class="pill">PostgreSQL</span>
+      <span class="pill">Redis</span>
+      <span class="pill">BullMQ</span>
+      <span class="pill">Socket.io</span>
+      <span class="pill">Stripe</span>
+      <span class="pill">JWT RS256</span>
+      <span class="pill">Zod</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── TABLE OF CONTENTS ── -->
+  <aside>
+    <nav class="toc">
+      <h3>Contents</h3>
+      <ol>
+        <li><a href="#s1">Architecture Overview</a></li>
+        <li><a href="#s2">Configuration Layer</a></li>
+        <li><a href="#s3">Authentication &amp; RBAC</a></li>
+        <li><a href="#s4">Database Layer (Prisma)</a></li>
+        <li><a href="#s5">Validation Layer (Zod)</a></li>
+        <li><a href="#s6">Background Jobs (BullMQ)</a></li>
+        <li><a href="#s7">Email Service</a></li>
+        <li><a href="#s8">Payment Flow (Stripe)</a></li>
+        <li><a href="#s9">Error Handling</a></li>
+        <li><a href="#s10">API Response Format</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 1 — Architecture Overview
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s1">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>Architecture Overview</h2>
+      </div>
+
+      <p>
+        The backend follows a strict <strong>domain-driven, layered architecture</strong>. Every business domain is a self-contained module
+        under <code>src/modules/</code>, and each module exposes the same four-layer stack — keeping routing, HTTP handling, business logic,
+        and data access completely separated.
+      </p>
+
+      <h3>Module Structure</h3>
+      <p>Each domain directory contains exactly six files following a uniform naming convention:</p>
+
+      <div class="dir-tree">
+        <span class="dir-line">src/modules/</span><span class="dir-folder">{domain}/</span><br>
+        <span class="dir-line">├── </span><span class="dir-file">{domain}.routes.ts</span>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="dir-comment">// Express Router — URL mapping + middleware chain</span><br>
+        <span class="dir-line">├── </span><span class="dir-file">{domain}.controller.ts</span>
+        &nbsp;&nbsp;<span class="dir-comment">// Thin HTTP adapter — calls service, sends response</span><br>
+        <span class="dir-line">├── </span><span class="dir-file">{domain}.service.ts</span>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="dir-comment">// Business logic — orchestrates repository + external calls</span><br>
+        <span class="dir-line">├── </span><span class="dir-file">{domain}.repository.ts</span>
+        &nbsp;&nbsp;<span class="dir-comment">// All Prisma DB calls</span><br>
+        <span class="dir-line">├── </span><span class="dir-file">{domain}.types.ts</span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir-comment">// TypeScript interfaces for the module</span><br>
+        <span class="dir-line">└── </span><span class="dir-file">{domain}.validator.ts</span>
+        &nbsp;&nbsp;&nbsp;<span class="dir-comment">// Zod schemas for request validation</span>
+      </div>
+
+      <h3>Domain Modules</h3>
+      <p>The following domains are implemented, each as an independent module:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px;">
+        <span class="badge badge-blue">auth</span>
+        <span class="badge badge-blue">users</span>
+        <span class="badge badge-blue">products</span>
+        <span class="badge badge-blue">categories</span>
+        <span class="badge badge-blue">orders</span>
+        <span class="badge badge-blue">payments</span>
+        <span class="badge badge-blue">vendors</span>
+        <span class="badge badge-blue">cart</span>
+        <span class="badge badge-blue">coupons</span>
+        <span class="badge badge-blue">reviews</span>
+        <span class="badge badge-blue">notifications</span>
+        <span class="badge badge-blue">analytics</span>
+        <span class="badge badge-blue">search</span>
+      </div>
+
+      <h3>Layer Responsibilities</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Layer</th><th>File</th><th>Responsibility</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Routes</strong></td><td><code>{domain}.routes.ts</code></td><td>Defines URL patterns, applies middleware chain (auth, RBAC, validation), delegates to controller methods.</td></tr>
+            <tr><td><strong>Controller</strong></td><td><code>{domain}.controller.ts</code></td><td>Thin HTTP adapter. Extracts request data, calls the service, sends the HTTP response. No business logic.</td></tr>
+            <tr><td><strong>Service</strong></td><td><code>{domain}.service.ts</code></td><td>All business logic lives here. Orchestrates one or more repository calls and external services (email, Stripe, etc.).</td></tr>
+            <tr><td><strong>Repository</strong></td><td><code>{domain}.repository.ts</code></td><td>Encapsulates all Prisma queries. Services never import Prisma directly — they call repository methods.</td></tr>
+            <tr><td><strong>Types</strong></td><td><code>{domain}.types.ts</code></td><td>TypeScript interfaces and type aliases used across all layers of the module.</td></tr>
+            <tr><td><strong>Validator</strong></td><td><code>{domain}.validator.ts</code></td><td>Zod schemas for body and query validation. Consumed by the <code>validate()</code> middleware in routes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Request Lifecycle</h3>
+      <p>Every inbound HTTP request passes through the following ordered middleware pipeline before reaching the controller:</p>
+      <div class="flow">
+        <div class="flow-step">HTTP Request</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">CORS</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Rate Limit</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Helmet</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Authenticate (JWT)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">RequireRole (RBAC)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Validate (Zod)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Controller</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Service</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Repository</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Prisma</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">PostgreSQL</div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">&#8505;</div>
+        <div class="callout-body">
+          <strong>Middleware ordering is critical.</strong>
+          Authentication runs before RBAC (you must know <em>who</em> before checking <em>what they can do</em>). Validation runs after RBAC to avoid wasting CPU parsing bodies that would be rejected anyway.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 2 — Configuration Layer
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s2">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2>Configuration Layer (<code>src/configs/</code>)</h2>
+      </div>
+
+      <p>All runtime infrastructure is initialised in singleton modules under <code>src/configs/</code> and imported wherever needed. This prevents multiple client instances from being created across modules.</p>
+
+      <h3>database.ts — Prisma Client Singleton</h3>
+      <p>
+        Exports a single <code>PrismaClient</code> instance shared across the entire application.
+        It also patches <code>Decimal.prototype.toJSON</code> to return a JavaScript <code>float</code>
+        instead of a string — Prisma's default serialisation wraps <code>Decimal</code> values in quotes,
+        which breaks downstream consumers expecting numeric JSON.
+      </p>
+      <div class="code-block">
+        <div class="code-label">src/configs/database.ts</div>
+        <pre><span class="kw">import</span> { PrismaClient, Prisma } <span class="kw">from</span> <span class="str">'@prisma/client'</span>;
+
+<span class="cmt">// Singleton — reuse across hot-reloads in development</span>
+<span class="kw">const</span> <span class="var">globalForPrisma</span> = <span class="fn">globalThis</span> <span class="kw">as unknown as</span> { prisma: PrismaClient };
+
+<span class="kw">export const</span> <span class="var">prisma</span> =
+  <span class="var">globalForPrisma</span>.<span class="prp">prisma</span> ?? <span class="kw">new</span> <span class="fn">PrismaClient</span>({ log: [<span class="str">'query'</span>, <span class="str">'error'</span>] });
+
+<span class="kw">if</span> (<span class="var">process</span>.<span class="prp">env</span>.<span class="prp">NODE_ENV</span> !== <span class="str">'production'</span>) <span class="var">globalForPrisma</span>.<span class="prp">prisma</span> = <span class="var">prisma</span>;
+
+<span class="cmt">// Fix: Prisma serialises Decimal as string — patch to return float</span>
+(<span class="var">Prisma</span>.<span class="typ">Decimal</span>.<span class="prp">prototype</span> <span class="kw">as any</span>).<span class="fn">toJSON</span> = <span class="kw">function</span>() {
+  <span class="kw">return</span> <span class="fn">parseFloat</span>(<span class="kw">this</span>.<span class="fn">toString</span>());
+};</pre>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-body">
+          <strong>Why this patch matters.</strong>
+          Without it, any <code>DECIMAL</code> database column (prices, totals, discounts) serialises as a string like <code>"19.99"</code> in JSON. The frontend expects a number. This one-liner fixes it globally for every Prisma query in the app.
+        </div>
+      </div>
+
+      <h3>env.ts — Validated Environment Variables</h3>
+      <p>
+        Uses <code>dotenv</code> to load <code>.env</code>, then validates every required variable against a Zod schema at startup.
+        If any required variable is missing or malformed, the process exits immediately with a descriptive error — preventing silent misconfiguration at runtime.
+      </p>
+      <div class="code-block">
+        <div class="code-label">src/configs/env.ts (pattern)</div>
+        <pre><span class="kw">import</span> { z } <span class="kw">from</span> <span class="str">'zod'</span>;
+<span class="kw">import</span> <span class="str">'dotenv/config'</span>;
+
+<span class="kw">const</span> <span class="var">envSchema</span> = z.<span class="fn">object</span>({
+  <span class="prp">DATABASE_URL</span>:               z.<span class="fn">string</span>().<span class="fn">url</span>(),
+  <span class="prp">REDIS_URL</span>:                  z.<span class="fn">string</span>().<span class="fn">url</span>(),
+  <span class="prp">JWT_ACCESS_TOKEN_PRIVATE_KEY</span>: z.<span class="fn">string</span>().<span class="fn">min</span>(<span class="num">1</span>),
+  <span class="prp">JWT_ACCESS_TOKEN_PUBLIC_KEY</span>:  z.<span class="fn">string</span>().<span class="fn">min</span>(<span class="num">1</span>),
+  <span class="prp">STRIPE_SECRET_KEY</span>:          z.<span class="fn">string</span>(),
+  <span class="prp">SMTP_HOST</span>:                  z.<span class="fn">string</span>(),
+  <span class="prp">NODE_ENV</span>:                   z.<span class="fn">enum</span>([<span class="str">'development'</span>, <span class="str">'production'</span>, <span class="str">'test'</span>]),
+  <span class="cmt">// ... all other required vars</span>
+});
+
+<span class="kw">const</span> <span class="var">parsed</span> = <span class="var">envSchema</span>.<span class="fn">safeParse</span>(<span class="var">process</span>.<span class="prp">env</span>);
+<span class="kw">if</span> (!<span class="var">parsed</span>.<span class="prp">success</span>) {
+  <span class="var">console</span>.<span class="fn">error</span>(<span class="str">'Missing env vars:'</span>, <span class="var">parsed</span>.<span class="prp">error</span>.<span class="fn">flatten</span>());
+  <span class="var">process</span>.<span class="fn">exit</span>(<span class="num">1</span>); <span class="cmt">// Fail fast</span>
+}
+<span class="kw">export const</span> <span class="var">env</span> = <span class="var">parsed</span>.<span class="prp">data</span>;</pre>
+      </div>
+
+      <h3>app.ts — Express App Factory</h3>
+      <p>
+        Assembles and returns the configured Express application. Registers middleware in order:
+      </p>
+      <ul>
+        <li><strong>Helmet</strong> — sets secure HTTP response headers</li>
+        <li><strong>CORS</strong> — configured with <code>X-Session-ID</code> in <code>allowedHeaders</code> to support guest cart tracking via session ID header</li>
+        <li><strong>express.json()</strong> — body parser for JSON payloads</li>
+        <li><strong>Morgan</strong> — HTTP request logger</li>
+        <li><strong>Route modules</strong> — each domain router mounted at its prefix</li>
+        <li><strong>Global error handler</strong> — catches all forwarded errors, returns unified JSON</li>
+      </ul>
+
+      <div class="callout info">
+        <div class="callout-icon">&#8505;</div>
+        <div class="callout-body">
+          <strong>X-Session-ID in CORS allowedHeaders.</strong>
+          Guest cart items are tracked by a <code>sessionId</code> generated on the frontend and sent as the <code>X-Session-ID</code> header. Without explicitly whitelisting it in CORS, browsers block the preflight request and cart operations fail for unauthenticated users.
+        </div>
+      </div>
+
+      <h3>redis.ts — IORedis Singleton</h3>
+      <p>
+        Exports a single <code>IORedis</code> instance created from <code>REDIS_URL</code>. This instance is passed as the <code>connection</code>
+        option to every BullMQ <code>Queue</code> and <code>Worker</code>, ensuring all background job infrastructure shares the same connection pool.
+      </p>
+
+      <h3>socket.ts — Socket.io Server</h3>
+      <p>
+        Initialises the Socket.io server and exports a <code>emitToUser(userId, event, data)</code> helper.
+        When a client connects and authenticates, it calls <code>socket.join(userId)</code> to enter a room
+        named after the user's ID. The helper then targets that room:
+      </p>
+      <div class="code-block">
+        <div class="code-label">src/configs/socket.ts</div>
+        <pre><span class="kw">export function</span> <span class="fn">emitToUser</span>(userId: <span class="typ">string</span>, event: <span class="typ">string</span>, data: <span class="kw">unknown</span>) {
+  <span class="var">io</span>.<span class="fn">to</span>(userId).<span class="fn">emit</span>(event, data);
+}
+
+<span class="cmt">// On connect: client joins its own room</span>
+<span class="var">io</span>.<span class="fn">on</span>(<span class="str">'connection'</span>, (socket) => {
+  <span class="kw">const</span> { <span class="var">userId</span> } = socket.<span class="prp">handshake</span>.<span class="prp">auth</span>;
+  <span class="kw">if</span> (<span class="var">userId</span>) socket.<span class="fn">join</span>(<span class="var">userId</span>);
+});</pre>
+      </div>
+
+      <h3>logger.ts — Winston Logger</h3>
+      <p>
+        Provides structured logging via Winston. In <strong>production</strong>, outputs newline-delimited JSON for log aggregation tools (Datadog, CloudWatch, etc.).
+        In <strong>development</strong>, outputs colorized, human-readable logs. The same logger instance is used by all modules, ensuring consistent log levels and formats.
+      </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 3 — Authentication & RBAC
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s3">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>Authentication &amp; RBAC (<code>src/modules/auth/</code>)</h2>
+      </div>
+
+      <h3>JWT RS256 Strategy</h3>
+      <p>
+        Authentication uses <strong>asymmetric JWT (RS256)</strong> rather than the simpler HS256 symmetric approach.
+        The private key signs tokens; the public key verifies them. This is advantageous in a multi-service architecture
+        because verification services only need the public key — they can never issue tokens.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Token</th><th>Key Used</th><th>Lifetime</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-green">Access Token</span></td>
+              <td><code>ACCESS_TOKEN_PRIVATE_KEY</code> (sign) / <code>PUBLIC_KEY</code> (verify)</td>
+              <td><strong>15 minutes</strong></td>
+              <td>Sent as <code>Authorization: Bearer &lt;token&gt;</code> on every API request</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-orange">Refresh Token</span></td>
+              <td>Same RS256 key pair</td>
+              <td><strong>7 days</strong></td>
+              <td>Used by the frontend to silently obtain a new access token when it expires</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>auth.service.ts — Core Operations</h3>
+
+      <h4>register()</h4>
+      <ol>
+        <li>Hash the password with bcrypt using <strong>12 rounds</strong> (cost factor)</li>
+        <li>Create the user record in PostgreSQL via the user repository</li>
+        <li>Sign both access and refresh tokens with the RS256 private key</li>
+        <li>Return <code>{ accessToken, refreshToken, user }</code></li>
+      </ol>
+
+      <h4>login()</h4>
+      <ol>
+        <li>Find the user by email</li>
+        <li>Compare the submitted password against the stored bcrypt hash with <code>bcrypt.compare()</code></li>
+        <li>Generate and return both tokens</li>
+      </ol>
+
+      <h4>refreshTokens()</h4>
+      <ol>
+        <li>Verify the refresh token using the RS256 public key</li>
+        <li>If valid and not expired, issue a new access token</li>
+        <li>Optionally rotate the refresh token (recommended)</li>
+      </ol>
+
+      <h4>Password Reset Flow</h4>
+      <ol>
+        <li>Generate a cryptographically secure random token via <code>crypto.randomBytes()</code></li>
+        <li>Store the <strong>hashed</strong> version in the database alongside an expiry timestamp</li>
+        <li>Email the <strong>raw</strong> token to the user (via BullMQ email queue)</li>
+        <li>On reset: hash the submitted token, look up the record, verify expiry, update the password</li>
+      </ol>
+
+      <div class="callout success">
+        <div class="callout-icon">&#10003;</div>
+        <div class="callout-body">
+          <strong>Security note.</strong>
+          Only the hash is stored in the database. Even if the database is compromised, the attacker cannot use the stored value to reset passwords — they need the raw token that was emailed.
+        </div>
+      </div>
+
+      <h3>auth.middleware.ts — JWT Verification</h3>
+      <div class="code-block">
+        <div class="code-label">src/modules/auth/auth.middleware.ts</div>
+        <pre><span class="kw">export const</span> <span class="fn">authenticate</span> = (req: <span class="typ">Request</span>, res: <span class="typ">Response</span>, next: <span class="typ">NextFunction</span>) => {
+  <span class="kw">const</span> <span class="var">authHeader</span> = req.<span class="prp">headers</span>.<span class="prp">authorization</span>;
+  <span class="kw">if</span> (!<span class="var">authHeader</span>?.startsWith(<span class="str">'Bearer '</span>)) {
+    <span class="kw">return</span> <span class="fn">next</span>(<span class="typ">AppError</span>.<span class="fn">unauthorized</span>(<span class="str">'No token provided'</span>));
+  }
+  <span class="kw">const</span> <span class="var">token</span> = <span class="var">authHeader</span>.<span class="fn">slice</span>(<span class="num">7</span>);
+  <span class="kw">try</span> {
+    <span class="kw">const</span> <span class="var">payload</span> = <span class="var">jwt</span>.<span class="fn">verify</span>(<span class="var">token</span>, <span class="var">env</span>.<span class="prp">ACCESS_TOKEN_PUBLIC_KEY</span>, { algorithms: [<span class="str">'RS256'</span>] });
+    req.<span class="prp">user</span> = <span class="var">payload</span> <span class="kw">as</span> { id: <span class="typ">string</span>; email: <span class="typ">string</span>; role: <span class="typ">UserRole</span> };
+    <span class="fn">next</span>();
+  } <span class="kw">catch</span> {
+    <span class="fn">next</span>(<span class="typ">AppError</span>.<span class="fn">unauthorized</span>(<span class="str">'Invalid or expired token'</span>));
+  }
+};</pre>
+      </div>
+
+      <h3>rbac.middleware.ts — Role-Based Access Control</h3>
+      <p>
+        The <code>requireRole(...roles)</code> factory middleware checks <code>req.user.role</code> against the allowed roles array.
+        Returns a <strong>403 Forbidden</strong> if the user's role is not in the list.
+      </p>
+      <div class="code-block">
+        <div class="code-label">src/modules/auth/rbac.middleware.ts</div>
+        <pre><span class="kw">export const</span> <span class="fn">requireRole</span> = (...<span class="var">roles</span>: <span class="typ">UserRole</span>[]) => {
+  <span class="kw">return</span> (req: <span class="typ">Request</span>, res: <span class="typ">Response</span>, next: <span class="typ">NextFunction</span>) => {
+    <span class="kw">if</span> (!<span class="var">roles</span>.<span class="fn">includes</span>(req.<span class="prp">user</span>!.<span class="prp">role</span>)) {
+      <span class="kw">return</span> <span class="fn">next</span>(<span class="typ">AppError</span>.<span class="fn">forbidden</span>(<span class="str">'Insufficient permissions'</span>));
+    }
+    <span class="fn">next</span>();
+  };
+};
+
+<span class="cmt">// Usage in routes:</span>
+<span class="var">router</span>.<span class="fn">delete</span>(<span class="str">'/products/:id'</span>, <span class="fn">authenticate</span>, <span class="fn">requireRole</span>(<span class="str">'VENDOR'</span>, <span class="str">'ADMIN'</span>), <span class="var">controller</span>.<span class="prp">delete</span>);</pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 4 — Database Layer
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s4">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h2>Database Layer (Prisma)</h2>
+      </div>
+
+      <p>
+        PostgreSQL is the primary data store, accessed exclusively through <strong>Prisma ORM</strong>.
+        The schema is defined in <code>prisma/schema.prisma</code> and all queries are issued through typed repository classes.
+      </p>
+
+      <h3>Key Models &amp; Relations</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Key Relations</th></tr></thead>
+          <tbody>
+            <tr><td><strong>User</strong></td><td>Has one <code>Vendor</code>, many <code>Orders</code>, many <code>CartItems</code> (via <code>Cart</code>), many <code>Reviews</code></td></tr>
+            <tr><td><strong>Vendor</strong></td><td>Has one <code>Store</code>, many <code>Products</code></td></tr>
+            <tr><td><strong>Product</strong></td><td>Belongs to <code>Category</code>, <code>Vendor</code>, <code>Store</code>; has many <code>ProductImages</code>, <code>ProductVariants</code>, <code>ProductInventory</code>, <code>ProductTags</code></td></tr>
+            <tr><td><strong>Category</strong></td><td>Self-referential (<code>parentId</code>) for hierarchical category tree</td></tr>
+            <tr><td><strong>Order</strong></td><td>Has one <code>OrderShippingAddress</code>, many <code>OrderItems</code>, many <code>OrderStatusHistory</code>, many <code>Payment</code></td></tr>
+            <tr><td><strong>Cart</strong></td><td>Belongs to <code>User</code> <em>or</em> tracked by <code>sessionId</code> for unauthenticated guests; has many <code>CartItems</code></td></tr>
+            <tr><td><strong>Payment</strong></td><td>Belongs to <code>Order</code>; has one optional <code>PaymentRefund</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Repository Pattern</h3>
+      <p>
+        Every domain has a repository class that encapsulates all Prisma calls. Services import only the repository — never Prisma directly.
+        This centralises query logic, makes testing easier (repositories can be mocked), and prevents query sprawl across the codebase.
+      </p>
+
+      <p>The product repository's <code>findAll</code> method demonstrates the full pattern — dynamic <code>where</code> building, parallel count + fetch, and paginated result assembly:</p>
+
+      <div class="code-block">
+        <div class="code-label">src/modules/products/products.repository.ts — findAll()</div>
+        <pre><span class="kw">async</span> <span class="fn">findAll</span>(query: <span class="typ">ProductListQuery</span>): <span class="typ">Promise</span>&lt;<span class="typ">PaginatedResult</span>&lt;<span class="typ">Product</span>&gt;&gt; {
+  <span class="kw">const</span> { skip, take, page, pageSize } = <span class="fn">parsePaginationQuery</span>(query);
+  <span class="kw">const</span> categoryIds = query.<span class="prp">categoryIds</span>?.split(<span class="str">','</span>);
+
+  <span class="kw">const</span> <span class="var">where</span>: <span class="typ">Prisma.ProductWhereInput</span> = {
+    <span class="prp">deletedAt</span>: <span class="kw">null</span>,            <span class="cmt">// Soft-delete guard</span>
+    <span class="prp">status</span>: query.<span class="prp">status</span> ?? <span class="str">'ACTIVE'</span>,
+    ...(categoryIds && { <span class="prp">categoryId</span>: { <span class="prp">in</span>: categoryIds } }),
+    ...(query.<span class="prp">vendorId</span> && { <span class="prp">vendorId</span>: query.<span class="prp">vendorId</span> }),
+    ...(query.<span class="prp">isFeatured</span> !== <span class="kw">undefined</span> && { <span class="prp">isFeatured</span>: query.<span class="prp">isFeatured</span> }),
+    ...(query.<span class="prp">search</span> && {
+      <span class="prp">OR</span>: [
+        { <span class="prp">name</span>:        { <span class="prp">contains</span>: query.<span class="prp">search</span>, <span class="prp">mode</span>: <span class="str">'insensitive'</span> } },
+        { <span class="prp">description</span>: { <span class="prp">contains</span>: query.<span class="prp">search</span>, <span class="prp">mode</span>: <span class="str">'insensitive'</span> } },
+      ]
+    }),
+  };
+
+  <span class="kw">const</span> [products, total] = <span class="kw">await</span> <span class="typ">Promise</span>.<span class="fn">all</span>([
+    <span class="var">prisma</span>.<span class="prp">product</span>.<span class="fn">findMany</span>({ where, skip, take, include: productInclude }),
+    <span class="var">prisma</span>.<span class="prp">product</span>.<span class="fn">count</span>({ where }),
+  ]);
+
+  <span class="kw">return</span> <span class="fn">buildPaginatedResult</span>(products, total, page, pageSize);
+}</pre>
+      </div>
+
+      <h3>Prisma Transactions</h3>
+      <p>
+        Multi-table writes are wrapped in <code>prisma.$transaction()</code> to ensure atomicity.
+        If any operation inside the transaction throws, all changes are rolled back automatically.
+      </p>
+      <p>The order creation transaction demonstrates three coordinated operations in a single atomic unit:</p>
+
+      <div class="code-block">
+        <div class="code-label">src/modules/orders/orders.service.ts — createOrder()</div>
+        <pre><span class="kw">const</span> <span class="var">order</span> = <span class="kw">await</span> <span class="var">prisma</span>.<span class="fn">$transaction</span>(<span class="kw">async</span> (tx) => {
+  <span class="cmt">// 1. Create the order record</span>
+  <span class="kw">const</span> <span class="var">newOrder</span> = <span class="kw">await</span> tx.<span class="prp">order</span>.<span class="fn">create</span>({ <span class="prp">data</span>: { ...orderData } });
+
+  <span class="cmt">// 2. Reserve inventory (decrement stock for each variant)</span>
+  <span class="kw">for</span> (<span class="kw">const</span> <span class="var">item</span> <span class="kw">of</span> cartItems) {
+    <span class="kw">await</span> tx.<span class="prp">productVariant</span>.<span class="fn">update</span>({
+      <span class="prp">where</span>: { <span class="prp">id</span>: <span class="var">item</span>.<span class="prp">variantId</span> },
+      <span class="prp">data</span>:  { <span class="prp">stock</span>: { <span class="prp">decrement</span>: <span class="var">item</span>.<span class="prp">quantity</span> } },
+    });
+  }
+
+  <span class="cmt">// 3. Clear the cart</span>
+  <span class="kw">await</span> tx.<span class="prp">cartItem</span>.<span class="fn">deleteMany</span>({ <span class="prp">where</span>: { <span class="prp">cartId</span>: cart.<span class="prp">id</span> } });
+
+  <span class="kw">return</span> <span class="var">newOrder</span>;
+});</pre>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-body">
+          <strong>Use the transaction client (tx), not the global prisma.</strong>
+          Inside a transaction callback, always use the <code>tx</code> parameter passed by Prisma. Using the global <code>prisma</code> instance inside a transaction bypasses the transaction entirely.
+        </div>
+      </div>
+
+      <h3>Soft Deletes</h3>
+      <p>
+        Products use a <code>deletedAt: DateTime?</code> field rather than physical deletion. This preserves order history,
+        analytics, and audit trails. All queries must include <code>deletedAt: null</code> in the <code>where</code> clause
+        to filter out soft-deleted records.
+      </p>
+
+      <h3>Pagination Utilities</h3>
+      <p>Defined in <code>src/utils/pagination.ts</code>, these two functions standardise pagination across all list endpoints:</p>
+
+      <div class="code-block">
+        <div class="code-label">src/utils/pagination.ts</div>
+        <pre><span class="kw">export function</span> <span class="fn">parsePaginationQuery</span>(query: <span class="kw">any</span>) {
+  <span class="kw">const</span> <span class="var">page</span>     = query.<span class="prp">page</span>     ?? <span class="num">1</span>;
+  <span class="kw">const</span> <span class="var">pageSize</span> = <span class="typ">Math</span>.<span class="fn">min</span>(query.<span class="prp">pageSize</span> ?? <span class="num">20</span>, <span class="num">100</span>); <span class="cmt">// cap at 100</span>
+  <span class="kw">return</span> {
+    skip: (<span class="var">page</span> - <span class="num">1</span>) * <span class="var">pageSize</span>,
+    take: <span class="var">pageSize</span>,
+    page, pageSize,
+  };
+}
+
+<span class="kw">export function</span> <span class="fn">buildPaginatedResult</span>&lt;T&gt;(
+  items: T[], total: <span class="typ">number</span>, page: <span class="typ">number</span>, pageSize: <span class="typ">number</span>
+) {
+  <span class="kw">const</span> <span class="var">totalPages</span>    = <span class="typ">Math</span>.<span class="fn">ceil</span>(total / pageSize);
+  <span class="kw">const</span> <span class="var">hasNextPage</span>   = page &lt; <span class="var">totalPages</span>;
+  <span class="kw">const</span> <span class="var">hasPrevPage</span>   = page &gt; <span class="num">1</span>;
+  <span class="kw">return</span> { items, meta: { total, page, pageSize, totalPages, hasNextPage, hasPreviousPage: hasPrevPage } };
+}</pre>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">&#8505;</div>
+        <div class="callout-body">
+          <strong>Page size is capped at 100.</strong>
+          The <code>Math.min(..., 100)</code> guard prevents clients from requesting unbounded result sets, which could exhaust database and memory resources.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 5 — Validation Layer
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s5">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h2>Validation Layer (Zod)</h2>
+      </div>
+
+      <p>
+        Every <code>POST</code> and <code>PATCH</code> request body is validated by a Zod schema before the controller is ever called.
+        Zod schemas live in <code>{domain}.validator.ts</code> and are applied via the <code>validate()</code> middleware factory.
+      </p>
+
+      <h3>The validate() Middleware</h3>
+      <div class="code-block">
+        <div class="code-label">src/middlewares/validate.middleware.ts</div>
+        <pre><span class="kw">export function</span> <span class="fn">validate</span>(schema: <span class="typ">ZodSchema</span>) {
+  <span class="kw">return</span> (req: <span class="typ">Request</span>, res: <span class="typ">Response</span>, next: <span class="typ">NextFunction</span>) => {
+    <span class="kw">const</span> <span class="var">result</span> = schema.<span class="fn">safeParse</span>(req.<span class="prp">body</span>);
+    <span class="kw">if</span> (!<span class="var">result</span>.<span class="prp">success</span>) {
+      <span class="kw">return</span> <span class="fn">next</span>(
+        <span class="typ">AppError</span>.<span class="fn">validation</span>(<span class="var">result</span>.<span class="prp">error</span>.<span class="fn">flatten</span>().<span class="prp">fieldErrors</span>)
+      );
+    }
+    req.<span class="prp">body</span> = <span class="var">result</span>.<span class="prp">data</span>; <span class="cmt">// Replace with type-coerced, validated data</span>
+    <span class="fn">next</span>();
+  };
+}</pre>
+      </div>
+
+      <p>
+        Using <code>safeParse</code> (rather than <code>parse</code>) avoids throwing — errors are forwarded to the global error handler via <code>next()</code>.
+        Critically, <code>req.body</code> is <strong>replaced</strong> with <code>result.data</code>, so the controller always receives fully typed, coerced data.
+      </p>
+
+      <h3>Query Parameter Transforms</h3>
+      <p>
+        HTTP query parameters arrive as strings. Zod's <code>.transform()</code> converts them to the correct types.
+        The pattern must preserve <code>undefined</code> to avoid applying filters on every request when the parameter is absent:
+      </p>
+
+      <div class="code-block">
+        <div class="code-label">src/modules/products/products.validator.ts — query schema</div>
+        <pre><span class="kw">export const</span> <span class="var">productListQuerySchema</span> = z.<span class="fn">object</span>({
+  <span class="cmt">// String → number, preserving undefined</span>
+  <span class="prp">page</span>:     z.<span class="fn">string</span>().<span class="fn">optional</span>().<span class="fn">transform</span>((v) => v !== <span class="kw">undefined</span> ? <span class="fn">Number</span>(v) : <span class="kw">undefined</span>),
+  <span class="prp">pageSize</span>: z.<span class="fn">string</span>().<span class="fn">optional</span>().<span class="fn">transform</span>((v) => v !== <span class="kw">undefined</span> ? <span class="fn">Number</span>(v) : <span class="kw">undefined</span>),
+
+  <span class="cmt">// String → boolean, preserving undefined</span>
+  <span class="prp">isFeatured</span>: z.<span class="fn">string</span>().<span class="fn">optional</span>().<span class="fn">transform</span>((v) => v !== <span class="kw">undefined</span> ? v === <span class="str">'true'</span> : <span class="kw">undefined</span>),
+
+  <span class="cmt">// Plain string fields need no transform</span>
+  <span class="prp">search</span>:    z.<span class="fn">string</span>().<span class="fn">optional</span>(),
+  <span class="prp">vendorId</span>:  z.<span class="fn">string</span>().<span class="fn">optional</span>(),
+  <span class="prp">categoryIds</span>: z.<span class="fn">string</span>().<span class="fn">optional</span>(), <span class="cmt">// comma-separated IDs</span>
+});</pre>
+      </div>
+
+      <div class="callout critical">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-body">
+          <strong>The undefined-preserving transform is critical.</strong>
+          A naive <code>.transform((v) =&gt; v === 'true')</code> maps <code>undefined</code> to <code>false</code>.
+          This silently applies <code>isFeatured: false</code> to <em>every</em> product list request, even when the client
+          didn't send the parameter — filtering out all featured products unexpectedly.
+          Always check <code>v !== undefined</code> before transforming.
+        </div>
+      </div>
+
+      <h3>Body Validation Example</h3>
+      <div class="code-block">
+        <div class="code-label">src/modules/auth/auth.validator.ts</div>
+        <pre><span class="kw">export const</span> <span class="var">registerSchema</span> = z.<span class="fn">object</span>({
+  <span class="prp">email</span>:     z.<span class="fn">string</span>().<span class="fn">email</span>(<span class="str">'Invalid email address'</span>),
+  <span class="prp">password</span>:  z.<span class="fn">string</span>().<span class="fn">min</span>(<span class="num">8</span>, <span class="str">'Password must be at least 8 characters'</span>),
+  <span class="prp">firstName</span>: z.<span class="fn">string</span>().<span class="fn">min</span>(<span class="num">1</span>).<span class="fn">max</span>(<span class="num">50</span>),
+  <span class="prp">lastName</span>:  z.<span class="fn">string</span>().<span class="fn">min</span>(<span class="num">1</span>).<span class="fn">max</span>(<span class="num">50</span>),
+  <span class="prp">role</span>:      z.<span class="fn">enum</span>([<span class="str">'CUSTOMER'</span>, <span class="str">'VENDOR'</span>]).<span class="fn">default</span>(<span class="str">'CUSTOMER'</span>),
+});
+
+<span class="cmt">// Route usage:</span>
+<span class="var">router</span>.<span class="fn">post</span>(<span class="str">'/register'</span>, <span class="fn">validate</span>(<span class="var">registerSchema</span>), <span class="var">authController</span>.<span class="prp">register</span>);</pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 6 — BullMQ Background Jobs
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s6">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>Background Jobs (BullMQ)</h2>
+      </div>
+
+      <p>
+        Long-running or side-effect tasks (sending emails, creating in-app notifications) are handled asynchronously via BullMQ queues backed by Redis.
+        This keeps request handlers fast — adding a job to a queue is near-instantaneous.
+      </p>
+
+      <div class="grid2">
+        <div class="card">
+          <h4>Queue Definitions</h4>
+          <p><code>src/jobs/email.job.ts</code></p>
+          <p><code>src/jobs/notification.job.ts</code></p>
+        </div>
+        <div class="card">
+          <h4>Redis Connection</h4>
+          <p>IORedis singleton from <code>src/configs/redis.ts</code></p>
+          <p>Passed as <code>connection</code> to every Queue and Worker</p>
+        </div>
+      </div>
+
+      <h3>Email Queue</h3>
+      <div class="code-block">
+        <div class="code-label">src/jobs/email.job.ts</div>
+        <pre><span class="kw">import</span> { Queue, Worker } <span class="kw">from</span> <span class="str">'bullmq'</span>;
+<span class="kw">import</span> { redis } <span class="kw">from</span> <span class="str">'../configs/redis'</span>;
+
+<span class="kw">export const</span> <span class="var">emailQueue</span> = <span class="kw">new</span> <span class="fn">Queue</span>(<span class="str">'email-queue'</span>, { connection: redis });
+
+<span class="kw">new</span> <span class="fn">Worker</span>(<span class="str">'email-queue'</span>, <span class="kw">async</span> (job) => {
+  <span class="kw">switch</span> (job.<span class="prp">name</span>) {
+    <span class="kw">case</span> <span class="str">'send-order-confirmation'</span>:
+      <span class="kw">await</span> <span class="fn">sendEmail</span>({
+        to: user.<span class="prp">email</span>,
+        subject: <span class="str">'Order Confirmed'</span>,
+        html: <span class="fn">orderConfirmationTemplate</span>(job.<span class="prp">data</span>),
+      });
+      <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="str">'send-password-reset'</span>:
+      <span class="kw">await</span> <span class="fn">sendEmail</span>({
+        to: user.<span class="prp">email</span>,
+        subject: <span class="str">'Reset Your Password'</span>,
+        html: <span class="fn">passwordResetTemplate</span>(job.<span class="prp">data</span>),
+      });
+      <span class="kw">break</span>;
+  }
+}, { connection: redis });</pre>
+      </div>
+
+      <h3>Notification Queue</h3>
+      <div class="code-block">
+        <div class="code-label">src/jobs/notification.job.ts</div>
+        <pre><span class="kw">export const</span> <span class="var">notificationQueue</span> = <span class="kw">new</span> <span class="fn">Queue</span>(<span class="str">'notification-queue'</span>, { connection: redis });
+
+<span class="kw">new</span> <span class="fn">Worker</span>(<span class="str">'notification-queue'</span>, <span class="kw">async</span> (job) => {
+  <span class="kw">if</span> (job.<span class="prp">name</span> === <span class="str">'in-app-notification'</span>) {
+    <span class="kw">const</span> { userId, type, title, body, metadata } = job.<span class="prp">data</span>;
+
+    <span class="cmt">// 1. Persist to database</span>
+    <span class="kw">await</span> <span class="var">prisma</span>.<span class="prp">notification</span>.<span class="fn">create</span>({
+      data: { userId, type, title, body, metadata },
+    });
+
+    <span class="cmt">// 2. Push to connected client via Socket.io</span>
+    <span class="fn">emitToUser</span>(userId, <span class="str">'notification:new'</span>, { title, body });
+  }
+}, { connection: redis });</pre>
+      </div>
+
+      <h3>Adding Jobs from Services</h3>
+      <p>After order creation in <code>orders.service.ts</code>, jobs are enqueued before returning the response:</p>
+      <div class="code-block">
+        <div class="code-label">src/modules/orders/orders.service.ts — post-order job dispatch</div>
+        <pre><span class="cmt">// After prisma.$transaction completes:</span>
+<span class="kw">await</span> <span class="var">emailQueue</span>.<span class="fn">add</span>(<span class="str">'send-order-confirmation'</span>, {
+  orderId: order.<span class="prp">id</span>,
+  userId: order.<span class="prp">userId</span>,
+});
+
+<span class="kw">await</span> <span class="var">notificationQueue</span>.<span class="fn">add</span>(<span class="str">'in-app-notification'</span>, {
+  userId:   order.<span class="prp">userId</span>,
+  type:     <span class="str">'ORDER_PLACED'</span>,
+  title:    <span class="str">'Order Placed'</span>,
+  body:     `Your order <span class="str">${order.orderNumber}</span> has been placed`,
+  metadata: { orderId: order.<span class="prp">id</span> },
+});</pre>
+      </div>
+
+      <h3>Monitoring BullMQ</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Command / Setup</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Bull Board (UI)</strong></td>
+              <td><code>npm install @bull-board/express @bull-board/api</code> — mounts a dashboard at <code>/admin/queues</code></td>
+            </tr>
+            <tr>
+              <td><strong>Redis CLI — list waiting jobs</strong></td>
+              <td><code>redis-cli LRANGE bull:email-queue:wait 0 -1</code></td>
+            </tr>
+            <tr>
+              <td><strong>Redis CLI — all queue keys</strong></td>
+              <td><code>redis-cli KEYS bull:*</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 7 — Email Service
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s7">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <h2>Email Service</h2>
+      </div>
+
+      <p>
+        Email delivery uses <strong>Nodemailer</strong> with SMTP transport. Configuration is injected from environment variables:
+        <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code>, <code>SMTP_FROM</code>.
+        Emails are never sent synchronously from request handlers — they are always dispatched through the BullMQ email queue.
+      </p>
+
+      <h3>Testing Locally — Three Options</h3>
+
+      <div class="option-block">
+        <div class="option-header">
+          <span class="option-num">Option 1</span>
+          Mailtrap — Recommended for Development
+        </div>
+        <div class="option-body">
+          <p>Mailtrap catches all outbound emails in a virtual inbox. No real recipients ever receive test emails.</p>
+          <ol>
+            <li>Create a free account at <strong>mailtrap.io</strong></li>
+            <li>Navigate to Email Testing → Inboxes → SMTP Settings</li>
+            <li>Copy the credentials into your <code>.env</code> file:</li>
+          </ol>
+          <div class="code-block" style="margin-top:10px;">
+            <div class="code-label">.env</div>
+            <pre><span class="prp">SMTP_HOST</span>=sandbox.smtp.mailtrap.io
+<span class="prp">SMTP_PORT</span>=2525
+<span class="prp">SMTP_USER</span>=your_mailtrap_user
+<span class="prp">SMTP_PASS</span>=your_mailtrap_pass
+<span class="prp">SMTP_FROM</span>=noreply@marketplace.com</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="option-block">
+        <div class="option-header">
+          <span class="option-num">Option 2</span>
+          Ethereal Email — Zero-Signup
+        </div>
+        <div class="option-body">
+          <p>Nodemailer can create a temporary test account programmatically. Use the returned URL to preview emails in a browser.</p>
+          <div class="code-block">
+            <div class="code-label">Test setup script</div>
+            <pre><span class="kw">const</span> <span class="var">account</span> = <span class="kw">await</span> <span class="var">nodemailer</span>.<span class="fn">createTestAccount</span>();
+<span class="cmt">// account.smtp.host, account.user, account.pass</span>
+
+<span class="kw">const</span> <span class="var">info</span> = <span class="kw">await</span> <span class="var">transporter</span>.<span class="fn">sendMail</span>({ to: <span class="str">'test@example.com'</span>, ... });
+<span class="var">console</span>.<span class="fn">log</span>(<span class="str">'Preview URL:'</span>, <span class="var">nodemailer</span>.<span class="fn">getTestMessageUrl</span>(<span class="var">info</span>));</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="option-block">
+        <div class="option-header">
+          <span class="option-num">Option 3</span>
+          Local MailHog (Docker)
+        </div>
+        <div class="option-body">
+          <p>MailHog runs a local SMTP server and web UI inside Docker. All emails are captured locally.</p>
+          <div class="code-block">
+            <div class="code-label">Terminal</div>
+            <pre><span class="cmt"># Start MailHog</span>
+docker run -d -p <span class="num">1025</span>:<span class="num">1025</span> -p <span class="num">8025</span>:<span class="num">8025</span> mailhog/mailhog
+
+<span class="cmt"># .env settings</span>
+<span class="prp">SMTP_HOST</span>=localhost
+<span class="prp">SMTP_PORT</span>=1025
+
+<span class="cmt"># Web UI at http://localhost:8025</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 8 — Payment Flow
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s8">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>Payment Flow (Stripe)</h2>
+      </div>
+
+      <p>
+        Payments use the <strong>Stripe PaymentIntents API</strong> with a server-side-first flow. The backend creates
+        the PaymentIntent, returns the <code>clientSecret</code> to the frontend, and the frontend uses Stripe.js
+        to confirm the payment — card details never touch the backend.
+      </p>
+
+      <p><strong>Files:</strong> <code>src/modules/payments/payments.service.ts</code>, <code>payments.routes.ts</code>, <code>payments.controller.ts</code></p>
+
+      <h3>Full Payment Flow</h3>
+
+      <div class="flow-steps">
+        <div class="flow-step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>POST /orders — Create Order + PaymentIntent</strong>
+            <p>
+              The order service creates the order record, then calls <code>stripe.paymentIntents.create()</code>.
+              The returned <code>stripePaymentIntentId</code> is stored in the <code>Payment</code> table.
+              The <code>clientSecret</code> is returned to the frontend in the response.
+            </p>
+          </div>
+        </div>
+        <div class="flow-step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Frontend — stripe.confirmPayment()</strong>
+            <p>
+              The frontend receives <code>clientSecret</code> and calls <code>stripe.confirmPayment({ clientSecret, ... })</code> via Stripe.js.
+              Stripe handles 3DS authentication, card validation, and charging directly.
+            </p>
+          </div>
+        </div>
+        <div class="flow-step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>POST /payments/confirm — Mark as Paid</strong>
+            <p>
+              After Stripe.js confirms success, the frontend calls this endpoint.
+              The service finds the payment by <code>stripePaymentIntentId</code>, marks it <code>PAID</code>,
+              and transitions the order to <code>CONFIRMED</code>.
+            </p>
+          </div>
+        </div>
+        <div class="flow-step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <strong>POST /payments/webhook — Stripe Event Handler</strong>
+            <p>
+              Stripe sends server-to-server events for reliability. The webhook handler uses a <strong>raw body parser</strong>
+              (not <code>express.json()</code>) so <code>stripe.webhooks.constructEvent()</code> can verify the signature.
+              Handles <code>payment_intent.succeeded</code> and <code>payment_intent.payment_failed</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-body">
+          <strong>Webhook route must use raw body middleware.</strong>
+          Mount the webhook route <em>before</em> <code>express.json()</code> in <code>app.ts</code>, or use <code>express.raw({ type: 'application/json' })</code> specifically for that route.
+          If the body is already JSON-parsed when Stripe's SDK tries to verify the signature, the verification fails with an invalid signature error.
+        </div>
+      </div>
+
+      <h3>Mock / Demo Mode</h3>
+      <p>
+        When <code>STRIPE_SECRET_KEY</code> is a placeholder (length &lt;= 40 chars), <code>isStripeConfigured()</code> returns false.
+        In this mode the service skips the Stripe API call entirely:
+      </p>
+      <div class="code-block">
+        <div class="code-label">src/modules/payments/payments.service.ts — mock mode</div>
+        <pre><span class="kw">function</span> <span class="fn">isStripeConfigured</span>(): <span class="typ">boolean</span> {
+  <span class="kw">return</span> env.<span class="prp">STRIPE_SECRET_KEY</span>.<span class="prp">length</span> &gt; <span class="num">40</span>;
+}
+
+<span class="kw">if</span> (!<span class="fn">isStripeConfigured</span>()) {
+  <span class="cmt">// Return a mock clientSecret — frontend detects 'mock_' prefix</span>
+  <span class="kw">return</span> {
+    clientSecret: <span class="str">`mock_${orderId}`</span>,
+    stripePaymentIntentId: <span class="str">`mock_${orderId}`</span>,
+  };
+}
+<span class="cmt">// Otherwise: real Stripe call</span>
+<span class="kw">const</span> <span class="var">intent</span> = <span class="kw">await</span> <span class="var">stripe</span>.<span class="prp">paymentIntents</span>.<span class="fn">create</span>({ amount, currency: <span class="str">'usd'</span> });</pre>
+      </div>
+      <p>The frontend detects the <code>mock_</code> prefix and renders a "Demo Mode — Simulate Payment" button instead of the Stripe card form.</p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 9 — Error Handling
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s9">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <h2>Error Handling</h2>
+      </div>
+
+      <p>
+        All errors are centralised through the <strong><code>AppError</code></strong> class and a single global Express error handler middleware.
+        This ensures every error produces the same JSON shape regardless of where it originated.
+      </p>
+
+      <h3>AppError Class</h3>
+      <div class="code-block">
+        <div class="code-label">src/middlewares/error.middleware.ts — AppError</div>
+        <pre><span class="kw">class</span> <span class="typ">AppError</span> <span class="kw">extends</span> <span class="typ">Error</span> {
+  <span class="kw">constructor</span>(
+    <span class="kw">public</span> <span class="prp">message</span>: <span class="typ">string</span>,
+    <span class="kw">public</span> <span class="prp">statusCode</span>: <span class="typ">number</span>,
+    <span class="kw">public</span> <span class="prp">errors</span>?: <span class="kw">unknown</span>
+  ) {
+    <span class="kw">super</span>(message);
+    <span class="typ">Object</span>.<span class="fn">setPrototypeOf</span>(<span class="kw">this</span>, <span class="typ">AppError</span>.<span class="prp">prototype</span>);
+  }
+
+  <span class="kw">static</span> <span class="fn">badRequest</span>(msg: <span class="typ">string</span>)          { <span class="kw">return new</span> <span class="fn">AppError</span>(msg, <span class="num">400</span>); }
+  <span class="kw">static</span> <span class="fn">unauthorized</span>(msg: <span class="typ">string</span>)        { <span class="kw">return new</span> <span class="fn">AppError</span>(msg, <span class="num">401</span>); }
+  <span class="kw">static</span> <span class="fn">forbidden</span>(msg: <span class="typ">string</span>)           { <span class="kw">return new</span> <span class="fn">AppError</span>(msg, <span class="num">403</span>); }
+  <span class="kw">static</span> <span class="fn">notFound</span>(resource: <span class="typ">string</span>)       { <span class="kw">return new</span> <span class="fn">AppError</span>(<span class="str">`${resource} not found`</span>, <span class="num">404</span>); }
+  <span class="kw">static</span> <span class="fn">conflict</span>(msg: <span class="typ">string</span>)            { <span class="kw">return new</span> <span class="fn">AppError</span>(msg, <span class="num">409</span>); }
+  <span class="kw">static</span> <span class="fn">validation</span>(errors: <span class="kw">unknown</span>)      { <span class="kw">return new</span> <span class="fn">AppError</span>(<span class="str">'Validation failed'</span>, <span class="num">400</span>, errors); }
+}</pre>
+      </div>
+
+      <h3>Global Error Handler Middleware</h3>
+      <p>
+        Registered as the <strong>last middleware</strong> in <code>app.ts</code> (after all routes). Express identifies it as an error handler
+        by its four-argument signature <code>(err, req, res, next)</code>. It normalises all thrown errors into a consistent JSON envelope:
+      </p>
+      <div class="code-block">
+        <div class="code-label">src/middlewares/error.middleware.ts — handler</div>
+        <pre><span class="kw">export const</span> <span class="fn">errorHandler</span> = (
+  err: <span class="kw">unknown</span>, req: <span class="typ">Request</span>, res: <span class="typ">Response</span>, next: <span class="typ">NextFunction</span>
+) => {
+  <span class="kw">if</span> (err <span class="kw">instanceof</span> <span class="typ">AppError</span>) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(err.<span class="prp">statusCode</span>).<span class="fn">json</span>({
+      success: <span class="kw">false</span>,
+      message: err.<span class="prp">message</span>,
+      data:    <span class="kw">null</span>,
+      errors:  err.<span class="prp">errors</span> ?? <span class="kw">null</span>,
+    });
+  }
+  <span class="cmt">// Unhandled/unexpected errors</span>
+  <span class="var">logger</span>.<span class="fn">error</span>(err);
+  <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">500</span>).<span class="fn">json</span>({
+    success: <span class="kw">false</span>,
+    message: <span class="str">'Internal server error'</span>,
+    data:    <span class="kw">null</span>,
+    errors:  <span class="kw">null</span>,
+  });
+};</pre>
+      </div>
+
+      <h3>Error Response Shape</h3>
+      <div class="code-block">
+        <div class="code-label">Error JSON response — example (validation failure)</div>
+        <pre>{
+  <span class="prp">"success"</span>: <span class="kw">false</span>,
+  <span class="prp">"message"</span>: <span class="str">"Validation failed"</span>,
+  <span class="prp">"data"</span>:    <span class="kw">null</span>,
+  <span class="prp">"errors"</span>: {
+    <span class="prp">"email"</span>:    [<span class="str">"Invalid email address"</span>],
+    <span class="prp">"password"</span>: [<span class="str">"Password must be at least 8 characters"</span>]
+  }
+}</pre>
+      </div>
+
+      <h3>HTTP Status Code Reference</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Factory Method</th><th>Status</th><th>Common Use</th></tr></thead>
+          <tbody>
+            <tr><td><code>AppError.badRequest()</code></td><td><span class="badge badge-orange">400</span></td><td>Invalid input not caught by Zod validation</td></tr>
+            <tr><td><code>AppError.validation()</code></td><td><span class="badge badge-orange">400</span></td><td>Zod schema failure — includes field-level errors</td></tr>
+            <tr><td><code>AppError.unauthorized()</code></td><td><span class="badge badge-red">401</span></td><td>Missing or invalid JWT token</td></tr>
+            <tr><td><code>AppError.forbidden()</code></td><td><span class="badge badge-red">403</span></td><td>Authenticated but insufficient role</td></tr>
+            <tr><td><code>AppError.notFound()</code></td><td><span class="badge badge-blue">404</span></td><td>Resource lookup returned null</td></tr>
+            <tr><td><code>AppError.conflict()</code></td><td><span class="badge badge-purple">409</span></td><td>Duplicate email on register, etc.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION 10 — API Response Format
+    ════════════════════════════════════════════ -->
+    <section class="section" id="s10">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2>API Response Format</h2>
+      </div>
+
+      <p>
+        Every successful API response follows the same JSON envelope shape, produced by
+        <code>sendSuccess()</code> and <code>sendCreated()</code> utility functions in <code>src/utils/response.ts</code>.
+        This contract is relied upon by the frontend API wrapper to uniformly extract data and pagination metadata.
+      </p>
+
+      <h3>Standard Success Response</h3>
+      <div class="code-block">
+        <div class="code-label">JSON — paginated list response</div>
+        <pre>{
+  <span class="prp">"success"</span>: <span class="kw">true</span>,
+  <span class="prp">"message"</span>: <span class="str">"Products fetched"</span>,
+  <span class="prp">"data"</span>: [
+    { <span class="prp">"id"</span>: <span class="str">"prod_123"</span>, <span class="prp">"name"</span>: <span class="str">"Wireless Headphones"</span>, <span class="prp">"price"</span>: <span class="num">49.99</span> },
+    <span class="cmt">// ...</span>
+  ],
+  <span class="prp">"meta"</span>: {
+    <span class="prp">"total"</span>:          <span class="num">26</span>,
+    <span class="prp">"page"</span>:           <span class="num">1</span>,
+    <span class="prp">"pageSize"</span>:       <span class="num">20</span>,
+    <span class="prp">"totalPages"</span>:     <span class="num">2</span>,
+    <span class="prp">"hasNextPage"</span>:    <span class="kw">true</span>,
+    <span class="prp">"hasPreviousPage"</span>: <span class="kw">false</span>
+  }
+}</pre>
+      </div>
+
+      <h3>Response Utility Functions</h3>
+      <div class="code-block">
+        <div class="code-label">src/utils/response.ts</div>
+        <pre><span class="kw">export function</span> <span class="fn">sendSuccess</span>(
+  res: <span class="typ">Response</span>, message: <span class="typ">string</span>, data: <span class="kw">unknown</span> = <span class="kw">null</span>, meta?: <span class="kw">unknown</span>
+) {
+  <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">200</span>).<span class="fn">json</span>({ success: <span class="kw">true</span>, message, data, meta: meta ?? <span class="kw">null</span> });
+}
+
+<span class="kw">export function</span> <span class="fn">sendCreated</span>(
+  res: <span class="typ">Response</span>, message: <span class="typ">string</span>, data: <span class="kw">unknown</span> = <span class="kw">null</span>
+) {
+  <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">201</span>).<span class="fn">json</span>({ success: <span class="kw">true</span>, message, data, meta: <span class="kw">null</span> });
+}
+
+<span class="cmt">// Controller usage:</span>
+<span class="fn">sendSuccess</span>(res, <span class="str">'Products fetched'</span>, result.<span class="prp">items</span>, result.<span class="prp">meta</span>);
+<span class="fn">sendCreated</span>(res, <span class="str">'Product created'</span>, newProduct);</pre>
+      </div>
+
+      <h3>Frontend API Wrapper Integration</h3>
+      <p>
+        The frontend <code>api.ts</code> Axios/fetch wrapper unwraps the envelope automatically.
+        Consumers of the API client receive the inner payload directly — they never deal with the envelope:
+      </p>
+      <div class="code-block">
+        <div class="code-label">frontend/src/lib/api.ts (pattern)</div>
+        <pre><span class="cmt">// The wrapper unwraps the envelope:</span>
+<span class="kw">const</span> <span class="var">response</span> = <span class="kw">await</span> <span class="fn">apiClient</span>.<span class="fn">get</span>(<span class="str">'/products'</span>);
+<span class="cmt">// response.data  → the payload array (not the envelope)</span>
+<span class="cmt">// response.meta  → pagination metadata</span>
+<span class="cmt">// response.message → human-readable message</span>
+
+<span class="cmt">// Implementation in api.ts:</span>
+<span class="var">axios</span>.<span class="prp">interceptors</span>.<span class="prp">response</span>.<span class="fn">use</span>((response) => {
+  <span class="kw">const</span> { data, meta, message } = response.<span class="prp">data</span>;
+  <span class="kw">return</span> { ...response, data, meta, message };
+});</pre>
+      </div>
+
+      <h3>Response Fields Summary</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Always Present</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>success</code></td><td><code>boolean</code></td><td>Yes</td><td><code>true</code> for 2xx responses, <code>false</code> for errors</td></tr>
+            <tr><td><code>message</code></td><td><code>string</code></td><td>Yes</td><td>Human-readable description of the outcome</td></tr>
+            <tr><td><code>data</code></td><td><code>T | null</code></td><td>Yes</td><td>The response payload — object, array, or <code>null</code></td></tr>
+            <tr><td><code>meta</code></td><td><code>PaginationMeta | null</code></td><td>Yes</td><td>Pagination info for list endpoints, <code>null</code> for single-resource responses</td></tr>
+            <tr><td><code>errors</code></td><td><code>FieldErrors | null</code></td><td>Error responses only</td><td>Field-level validation errors from Zod, keyed by field name</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-icon">&#10003;</div>
+        <div class="callout-body">
+          <strong>Consistent contract across all endpoints.</strong>
+          The uniform envelope means the frontend can handle loading states, error display, and pagination with generic utilities — no per-endpoint parsing logic required.
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer style="background: var(--navy); color: rgba(255,255,255,0.5); text-align:center; padding: 28px 20px; font-size: 13px;">
+  Enterprise Multi-Vendor E-Commerce Marketplace &mdash; Backend Architecture Reference &mdash; Node.js / TypeScript / Prisma / PostgreSQL
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+import { Router } from 'express';
+import { homeRoutes } from './home';
+import { authRoutes } from '../modules/auth/auth.routes';
+import { usersRoutes } from '../modules/users/users.routes';
+import { vendorsRoutes } from '../modules/vendors/vendors.routes';
+import { productsRoutes } from '../modules/products/products.routes';
+import { categoriesRoutes } from '../modules/categories/categories.routes';
+import { cartRoutes } from '../modules/cart/cart.routes';
+import { ordersRoutes } from '../modules/orders/orders.routes';
+import { paymentsRoutes } from '../modules/payments/payments.routes';
+import { reviewsRoutes } from '../modules/reviews/reviews.routes';
+import { couponsRoutes } from '../modules/coupons/coupons.routes';
+import { notificationsRoutes } from '../modules/notifications/notifications.routes';
+import { analyticsRoutes } from '../modules/analytics/analytics.routes';
+import { aiRoutes } from '../modules/ai/ai.routes';
+
+export const apiRouter = Router();
+
+apiRouter.use('/home', homeRoutes);
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/users', usersRoutes);
+apiRouter.use('/vendors', vendorsRoutes);
+apiRouter.use('/products', productsRoutes);
+apiRouter.use('/categories', categoriesRoutes);
+apiRouter.use('/cart', cartRoutes);
+apiRouter.use('/orders', ordersRoutes);
+apiRouter.use('/payments', paymentsRoutes);
+apiRouter.use('/reviews', reviewsRoutes);
+apiRouter.use('/coupons', couponsRoutes);
+apiRouter.use('/notifications', notificationsRoutes);
+apiRouter.use('/analytics', analyticsRoutes);
+apiRouter.use('/ai', aiRoutes);
