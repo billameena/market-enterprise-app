@@ -26,7 +26,6 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "ignoreDeprecations": "6.0",
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {

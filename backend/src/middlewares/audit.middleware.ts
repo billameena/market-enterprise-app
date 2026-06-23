@@ -5,11 +5,11 @@ import { logger } from '../configs/logger';
 
 const AUDITED_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
-interface AuditableRequest extends Request {
+type AuditableRequest = Request & {
   auditAction?: string;
   auditResource?: string;
   auditResourceId?: string;
-}
+};
 
 export function auditLog(action: string, resource: string) {
   return (req: AuditableRequest, _res: Response, next: NextFunction): void => {
