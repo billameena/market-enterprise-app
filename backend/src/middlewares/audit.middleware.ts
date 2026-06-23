@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../configs/database';
+import { Prisma } from '@prisma/client';
 import { logger } from '../configs/logger';
 
 const AUDITED_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
@@ -49,7 +50,7 @@ export function autoAuditMiddleware(
             action,
             resource,
             resourceId: resourceId ?? null,
-            newValue: req.body as Record<string, unknown>,
+            newValue: req.body as unknown as Prisma.InputJsonValue,
             ipAddress: req.ip ?? null,
             userAgent: req.headers['user-agent'] ?? null,
           },

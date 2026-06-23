@@ -1,4 +1,5 @@
 import { NotificationType } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 export interface CreateNotificationInput {
   userId: string;
@@ -7,7 +8,7 @@ export interface CreateNotificationInput {
   body: string;
   imageUrl?: string;
   actionUrl?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Prisma.InputJsonValue;
 }
 
 export interface NotificationListQuery {

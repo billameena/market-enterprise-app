@@ -1,8 +1,8 @@
-import IORedis from 'ioredis';
+import Redis, { RedisOptions } from 'ioredis';
 import { env } from './env';
 import { logger } from './logger';
 
-const redisOptions: IORedis.RedisOptions = {
+const redisOptions: RedisOptions = {
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
   db: env.REDIS_DB,
@@ -36,13 +36,13 @@ if (env.REDIS_TLS) {
 }
 
 // Main Redis client
-export const redis = new IORedis(redisOptions);
+export const redis = new Redis(redisOptions);
 
 // Dedicated subscriber client (for pub/sub, cannot share with publisher)
-export const redisSubscriber = new IORedis({ ...redisOptions, keyPrefix: '' });
+export const redisSubscriber = new Redis({ ...redisOptions, keyPrefix: '' });
 
 // Publisher client
-export const redisPublisher = new IORedis({ ...redisOptions, keyPrefix: '' });
+export const redisPublisher = new Redis({ ...redisOptions, keyPrefix: '' });
 
 redis.on('connect', () => logger.info('Redis client connected'));
 redis.on('ready', () => logger.info('Redis client ready'));
@@ -50,7 +50,7 @@ redis.on('error', (err: Error) => logger.error('Redis client error', { error: er
 redis.on('close', () => logger.warn('Redis client connection closed'));
 redis.on('reconnecting', () => logger.info('Redis client reconnecting'));
 
-async function connectIfNeeded(client: IORedis): Promise<void> {
+async function connectIfNeeded(client: Redis): Promise<void> {
   if (client.status === 'wait') {
     await client.connect();
   }
@@ -109,7 +109,8 @@ export const cache = {
   async delPattern(pattern: string): Promise<void> {
     const keys = await redis.keys(pattern);
     if (keys.length > 0) {
-      await redis.del(...keys);
+      // redis.del expects varargs; cast to tuple since keys.length > 0
+      await redis.del(...(keys as [string, ...string[]]));
     }
   },
 

@@ -4,11 +4,12 @@ import { redis } from '../configs/redis';
 import { env } from '../configs/env';
 
 // Each limiter must have its own RedisStore instance with a unique prefix
-function createRedisStore(prefix: string): RedisStore {
+function createRedisStore(prefix: string): any {
   return new RedisStore({
-    sendCommand: (...args: string[]) => redis.call(...args) as Promise<unknown>,
+    // avoid spread to satisfy typing: call.apply with args array
+    sendCommand: (...args: unknown[]) => (redis.call as any).apply(redis, args) as Promise<any>,
     prefix: `${env.REDIS_KEY_PREFIX}rl:${prefix}:`,
-  });
+  }) as any;
 }
 
 export const globalRateLimiter = rateLimit({

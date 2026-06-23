@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import { env } from '../configs/env';
 
 export interface AccessTokenPayload {
@@ -23,8 +23,12 @@ export interface RefreshTokenPayload {
 const privateKey = env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');
 const publicKey = env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n');
 
+// Use Buffer to satisfy jsonwebtoken overloads expecting Buffer or KeyObject
+const privateKeyBuf = Buffer.from(privateKey);
+const publicKeyBuf = Buffer.from(publicKey);
+
 export function signAccessToken(payload: Omit<AccessTokenPayload, 'iat' | 'exp' | 'iss' | 'aud'>): string {
-  return jwt.sign(payload, privateKey, {
+  return (jwt as any).sign(payload, privateKeyBuf, {
     algorithm: 'RS256',
     expiresIn: env.JWT_ACCESS_TOKEN_EXPIRY,
     issuer: env.JWT_ISSUER,
@@ -33,7 +37,7 @@ export function signAccessToken(payload: Omit<AccessTokenPayload, 'iat' | 'exp' 
 }
 
 export function signRefreshToken(payload: Omit<RefreshTokenPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, privateKey, {
+  return (jwt as any).sign(payload, privateKeyBuf, {
     algorithm: 'RS256',
     expiresIn: env.JWT_REFRESH_TOKEN_EXPIRY,
     issuer: env.JWT_ISSUER,
@@ -41,7 +45,7 @@ export function signRefreshToken(payload: Omit<RefreshTokenPayload, 'iat' | 'exp
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {
-  return jwt.verify(token, publicKey, {
+  return (jwt as any).verify(token, publicKeyBuf, {
     algorithms: ['RS256'],
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
@@ -49,7 +53,7 @@ export function verifyAccessToken(token: string): AccessTokenPayload {
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload {
-  return jwt.verify(token, publicKey, {
+  return (jwt as any).verify(token, publicKeyBuf, {
     algorithms: ['RS256'],
     issuer: env.JWT_ISSUER,
   }) as RefreshTokenPayload;

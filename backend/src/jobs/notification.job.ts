@@ -15,6 +15,8 @@ export const notificationQueue = new Queue('notification-queue', {
   },
 });
 
+import { Prisma } from '@prisma/client';
+
 interface InAppNotificationData {
   userId: string;
   type: string;
@@ -22,7 +24,7 @@ interface InAppNotificationData {
   body: string;
   imageUrl?: string;
   actionUrl?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Prisma.InputJsonValue;
 }
 
 const notificationsService = new NotificationsService();
