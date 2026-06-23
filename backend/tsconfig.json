@@ -24,6 +24,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(docker-compose ps *)",
+      "Bash(curl -s http://localhost:3000/api/v1/health)",
+      "Bash(curl -s http://localhost:3000/api/v1/products)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/api/v1/)",
+      "Bash(curl -s \"http://localhost:3000/api/v1/products?categoryId=cmq7zojww000egs3nwjayr834\")",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s \"http://localhost:3000/api/v1/products?limit=20&status=ACTIVE\")",
+      "Bash(curl -s \"http://localhost:3000/api/v1/products?pageSize=1\")",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf=/home/mbilla/Desktop/full-stack/Enterprice-App/docs/frontend-architecture.pdf --print-to-pdf-no-header file:///home/mbilla/Desktop/full-stack/Enterprice-App/docs/frontend.html)",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf=/home/mbilla/Desktop/full-stack/Enterprice-App/docs/backend-architecture.pdf --print-to-pdf-no-header file:///home/mbilla/Desktop/full-stack/Enterprice-App/docs/backend.html)",
+      "Bash(curl -s -X POST http://localhost:3000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"vendor@techstore.com\",\"password\":\"Vendor@123\"}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbXE3em9pZ3AwMDAyZ3MzbnJocGwwNmRtIiwiZW1haWwiOiJ2ZW5kb3JAdGVjaHN0b3JlLmNvbSIsInJvbGUiOiJWRU5ET1IiLCJzZXNzaW9uSWQiOiJjbXFodjQwYXowMDAzMmM5enQwMmV2OGlwIiwiaWF0IjoxNzgxNjg4MTMwLCJleHAiOjE3ODE2ODkwMzAsImF1ZCI6Im1hcmtldHBsYWNlLXVzZXJzIiwiaXNzIjoiZW50ZXJwcmlzZS1tYXJrZXRwbGFjZSJ9.QdP9hxoEtmy1mPsBzh54crhxfhvyFwMGDuulO8v9MPpTgOZ9_mhBlu5uFBJjTFGm93_jX0qt2Ak0wlhzqIt99v28UOWfAXAdbnRmZSGJLnG3ZW_5yiRhH0ILrTYlloA-xP4GVuAJrqQspvRhftkRfqxg8yy0gT9_iJxEgtvGLb2yLrCUGCdJyYMFqeH_oW40CXGB0vCkU5DDPK1lyhvOlQqqt-gSrVJZNsB5KHfSg4E9ghTdzFaUOX7m4cpQlwWAtf4wG4Zac8CmlBVlH4qnbS0oVB9w3kGucg8L-FUFGe3mt_L_5f-2iig1d43fHFrWRXShESaFi0NiFBGbkfScgw' http://localhost:3000/api/v1/vendors/me/stats)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('OK' if d['success'] else d['message'], '| topProducts:', len\\(d['data'].get\\('topProducts',[]\\)\\)\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"superadmin@marketplace.com\",\"password\":\"SuperAdmin@123\"}')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('OK' if d['success'] else d['message'], '| users:', len\\(d['data'].get\\('users',[]\\) if isinstance\\(d['data'],dict\\) else d['data']\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")"
+    ]
+  }
+}
