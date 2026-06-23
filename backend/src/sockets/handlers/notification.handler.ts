@@ -3,7 +3,7 @@ import { SOCKET_EVENTS } from '../events';
 import { NotificationsService } from '../../modules/notifications/notifications.service';
 import { logger } from '../../configs/logger';
 
-export function registerNotificationHandlers(io: Server, socket: Socket): void {
+export function registerNotificationHandlers(_io: Server, socket: Socket): void {
   const notificationsService = new NotificationsService();
   const { userId } = socket.data as { userId: string };
 

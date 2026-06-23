@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { SOCKET_EVENTS } from '../events';
 import { logger } from '../../configs/logger';
 
-export function registerOrderHandlers(io: Server, socket: Socket): void {
+export function registerOrderHandlers(_io: Server, socket: Socket): void {
   const { userId } = socket.data as { userId: string };
 
   socket.on(SOCKET_EVENTS.JOIN_ORDER_ROOM, (data: { orderId: string }) => {

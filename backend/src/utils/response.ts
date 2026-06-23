@@ -12,7 +12,7 @@ export function sendSuccess<T>(
     success: true,
     message,
     data,
-    ...(meta && { meta }),
+    ...(meta ? { meta } : {}),
   };
   return res.status(statusCode).json(response);
 }
@@ -39,7 +39,7 @@ export function sendError(
     success: false,
     message,
     data: null,
-    ...(errors && { errors }),
+    ...(errors ? { errors } : {}),
   };
   return res.status(statusCode).json(response);
 }
