@@ -30,21 +30,21 @@ export function createApp(): Application {
 
   // CORS
   const allowedOrigins = env.CORS_ORIGINS.split(',').map((o) => o.trim());
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error(`CORS: origin ${origin} not allowed`));
-        }
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID', 'X-Session-ID'],
-      exposedHeaders: ['X-Total-Count', 'X-Request-ID'],
-    }),
-  );
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID', 'X-Session-ID'],
+    exposedHeaders: ['X-Total-Count', 'X-Request-ID'],
+  };
+  app.options('*', cors(corsOptions));
+  app.use(cors(corsOptions));
 
   // Request parsing
   app.use(express.json({ limit: '10mb' }));
