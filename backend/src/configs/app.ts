@@ -13,6 +13,42 @@ import { globalRateLimiter } from '../middlewares/rateLimit.middleware';
 export function createApp(): Application {
   const app = express();
 
+  // CORS must come before everything else, including helmet
+  const allowedOrigins = env.CORS_ORIGINS.split(',').map((o) => o.trim());
+  console.log('[CORS] Allowed origins:', allowedOrigins);
+
+  // Explicit preflight handler — responds before any other middleware runs
+  app.options('*', (req, res) => {
+    const origin = req.headers.origin as string | undefined;
+    if (!origin || allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin ?? '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,X-Request-ID,X-Session-ID');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Max-Age', '86400');
+      res.status(204).end();
+    } else {
+      res.status(403).end();
+    }
+  });
+
+  // CORS headers for all non-preflight requests
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS: origin ${origin} not allowed`));
+        }
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID', 'X-Session-ID'],
+      exposedHeaders: ['X-Total-Count', 'X-Request-ID'],
+    }),
+  );
+
   // Security headers
   app.use(
     helmet({
@@ -27,25 +63,6 @@ export function createApp(): Application {
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
-
-  // CORS
-  const allowedOrigins = env.CORS_ORIGINS.split(',').map((o) => o.trim());
-  console.log('[CORS] Allowed origins:', allowedOrigins);
-  const corsOptions: cors.CorsOptions = {
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS: origin ${origin} not allowed`));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID', 'X-Session-ID'],
-    exposedHeaders: ['X-Total-Count', 'X-Request-ID'],
-  };
-  app.options('*', cors(corsOptions));
-  app.use(cors(corsOptions));
 
   // Request parsing
   app.use(express.json({ limit: '10mb' }));
