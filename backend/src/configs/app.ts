@@ -30,6 +30,7 @@ export function createApp(): Application {
 
   // CORS
   const allowedOrigins = env.CORS_ORIGINS.split(',').map((o) => o.trim());
+  console.log('[CORS] Allowed origins:', allowedOrigins);
   const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
