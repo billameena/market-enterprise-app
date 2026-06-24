@@ -39,13 +39,15 @@ services:
         value: enterprise-marketplace
       - key: JWT_AUDIENCE
         value: marketplace-users
-      # URLs — set after Vercel deploy gives you the frontend URL
+      # URLs — override these in the Render dashboard with your real URLs
+      # APP_URL: your Render service URL (e.g. https://marketplace-api.onrender.com)
+      # FRONTEND_URL + CORS_ORIGINS: your Vercel URL after frontend deploy
       - key: APP_URL
-        sync: false
+        value: https://marketplace-api.onrender.com
       - key: FRONTEND_URL
-        sync: false
+        value: https://placeholder.example.com
       - key: CORS_ORIGINS
-        sync: false
+        value: https://placeholder.example.com
       # Email (use Brevo/Resend free tier for production, or leave as-is to skip emails)
       - key: SMTP_HOST
         sync: false
