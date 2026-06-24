@@ -45,9 +45,9 @@ services:
       - key: APP_URL
         value: https://marketplace-api.onrender.com
       - key: FRONTEND_URL
-        value: https://placeholder.example.com
+        value: https://market-enterprise-app.vercel.app
       - key: CORS_ORIGINS
-        value: https://placeholder.example.com
+        value: https://market-enterprise-app.vercel.app
       # Email (use Brevo/Resend free tier for production, or leave as-is to skip emails)
       - key: SMTP_HOST
         sync: false
