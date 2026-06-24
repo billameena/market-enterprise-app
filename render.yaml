@@ -43,7 +43,7 @@ services:
       # APP_URL: your Render service URL (e.g. https://marketplace-api.onrender.com)
       # FRONTEND_URL + CORS_ORIGINS: your Vercel URL after frontend deploy
       - key: APP_URL
-        value: https://marketplace-api.onrender.com
+        value: https://market-enterprise-app.onrender.com
       - key: FRONTEND_URL
         value: https://market-enterprise-app.vercel.app
       - key: CORS_ORIGINS
