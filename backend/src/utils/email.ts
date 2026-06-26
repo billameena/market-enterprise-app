@@ -1,4 +1,5 @@
 import nodemailer, { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../configs/env';
 import { logger } from '../configs/logger';
 
@@ -14,6 +15,23 @@ export interface EmailOptions {
   }>;
 }
 
+// Use Resend HTTP API when RESEND_API_KEY is set (required on Render — SMTP ports are blocked)
+// Falls back to Nodemailer SMTP for local development with MailHog
+async function sendViaResend(options: EmailOptions): Promise<void> {
+  const resend = new Resend(env.RESEND_API_KEY);
+  const to = Array.isArray(options.to) ? options.to : [options.to];
+
+  const { error } = await resend.emails.send({
+    from: `${env.SMTP_FROM_NAME} <${env.SMTP_FROM_EMAIL}>`,
+    to,
+    subject: options.subject,
+    html: options.html,
+    text: options.text ?? options.html.replace(/<[^>]*>/g, ''),
+  });
+
+  if (error) throw new Error(error.message);
+}
+
 let transporter: Transporter;
 
 function getTransporter(): Transporter {
@@ -27,10 +45,7 @@ function getTransporter(): Transporter {
       greetingTimeout: 10000,
       socketTimeout: 15000,
       auth: env.SMTP_USER
-        ? {
-            user: env.SMTP_USER,
-            pass: env.SMTP_PASSWORD,
-          }
+        ? { user: env.SMTP_USER, pass: env.SMTP_PASSWORD }
         : undefined,
     });
   }
@@ -39,16 +54,21 @@ function getTransporter(): Transporter {
 
 export async function sendEmail(options: EmailOptions): Promise<void> {
   try {
-    const info = await getTransporter().sendMail({
-      from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
-      subject: options.subject,
-      html: options.html,
-      text: options.text ?? options.html.replace(/<[^>]*>/g, ''),
-      attachments: options.attachments,
-    });
-
-    logger.info('Email sent', { messageId: info.messageId, to: options.to });
+    if (env.RESEND_API_KEY) {
+      await sendViaResend(options);
+    } else {
+      const info = await getTransporter().sendMail({
+        from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
+        to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text ?? options.html.replace(/<[^>]*>/g, ''),
+        attachments: options.attachments,
+      });
+      logger.info('Email sent', { messageId: info.messageId, to: options.to });
+      return;
+    }
+    logger.info('Email sent', { to: options.to });
   } catch (error) {
     logger.error('Failed to send email', { error, to: options.to });
     throw error;
