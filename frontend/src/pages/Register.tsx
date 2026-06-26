@@ -63,6 +63,14 @@ export function Register() {
           autoComplete="new-password"
         />
 
+        <Input
+          label="Confirm Password"
+          type="password"
+          {...register('confirmPassword')}
+          error={errors.confirmPassword?.message}
+          autoComplete="new-password"
+        />
+
         <Button type="submit" fullWidth size="lg" isLoading={registerMutation.isPending}>
           Create Account
         </Button>
