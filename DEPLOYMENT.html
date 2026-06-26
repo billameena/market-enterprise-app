@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Deployment Guide</title>
+<style>
+  :root {
+    --ground:      #0D1117;
+    --surface:     #161B22;
+    --surface-2:   #1C2333;
+    --border:      #30363D;
+    --text:        #CDD9E5;
+    --text-muted:  #768390;
+    --text-dim:    #444C56;
+    --amber:       #F0883E;
+    --code-bg:     #161B22;
+    --code-text:   #79C0FF;
+
+    --supabase:    #3ECF8E;
+    --upstash:     #06B6D4;
+    --render:      #A855F7;
+    --vercel:      #E6EDF3;
+    --resend:      #FF6154;
+
+    --font-mono:   'Courier New', Courier, monospace;
+    --font-body:   -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 24px 120px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    margin-bottom: 72px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 20px;
+  }
+
+  .hero-eyebrow::before { content: '$ '; opacity: 0.5; }
+
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    color: #E6EDF3;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span {
+    color: var(--amber);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 540px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .stack-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+  .pill-supabase { color: var(--supabase); border-color: var(--supabase); background: rgba(62,207,142,0.07); }
+  .pill-upstash  { color: var(--upstash);  border-color: var(--upstash);  background: rgba(6,182,212,0.07); }
+  .pill-render   { color: var(--render);   border-color: var(--render);   background: rgba(168,85,247,0.07); }
+  .pill-vercel   { color: var(--vercel);   border-color: #444C56;         background: rgba(230,237,243,0.05); }
+  .pill-resend   { color: var(--resend);   border-color: var(--resend);   background: rgba(255,97,84,0.07); }
+
+  /* ── Required Files ── */
+  .req-files {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 64px;
+  }
+
+  .req-files-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  .req-files h2 {
+    font-size: 17px;
+    font-weight: 600;
+    color: #E6EDF3;
+    margin-bottom: 16px;
+  }
+
+  .req-files p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .file-item {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .file-path {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--code-text);
+  }
+
+  .file-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── Service Section ── */
+  .service {
+    margin-bottom: 64px;
+  }
+
+  .service-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .service-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .badge-supabase { background: rgba(62,207,142,0.15);  color: var(--supabase); }
+  .badge-upstash  { background: rgba(6,182,212,0.15);   color: var(--upstash); }
+  .badge-render   { background: rgba(168,85,247,0.15);  color: var(--render); }
+  .badge-vercel   { background: rgba(230,237,243,0.08); color: var(--vercel); }
+  .badge-resend   { background: rgba(255,97,84,0.15);   color: var(--resend); }
+
+  .service-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #E6EDF3;
+    letter-spacing: -0.01em;
+  }
+
+  .service-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-left: auto;
+    font-family: var(--font-mono);
+  }
+
+  /* ── Steps ── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0 20px;
+    position: relative;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 22px;
+    top: 40px;
+    bottom: -4px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .step-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-supabase .step-num { border-color: var(--supabase); color: var(--supabase); background: rgba(62,207,142,0.07); }
+  .step-upstash  .step-num { border-color: var(--upstash);  color: var(--upstash);  background: rgba(6,182,212,0.07); }
+  .step-render   .step-num { border-color: var(--render);   color: var(--render);   background: rgba(168,85,247,0.07); }
+  .step-vercel   .step-num { border-color: #555E6A;         color: var(--vercel);   background: rgba(230,237,243,0.04); }
+  .step-resend   .step-num { border-color: var(--resend);   color: var(--resend);   background: rgba(255,97,84,0.07); }
+
+  .step-body {
+    padding-bottom: 36px;
+  }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #E6EDF3;
+    margin-bottom: 8px;
+    padding-top: 10px;
+  }
+
+  .step-body p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.65;
+  }
+
+  .step-body ol, .step-body ul {
+    padding-left: 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .step-body li { margin-bottom: 4px; }
+
+  .step-body li strong {
+    color: var(--text);
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--code-text);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--code-text);
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  .comment { color: var(--text-dim); }
+  .highlight { color: var(--amber); }
+  .str { color: #A5D6FF; }
+
+  /* ── Env table ── */
+  .env-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+
+  .env-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .env-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .env-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    vertical-align: top;
+  }
+
+  .env-table tr:last-child td { border-bottom: none; }
+
+  .env-table tbody tr:hover { background: var(--surface-2); }
+
+  .env-key {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--code-text);
+    white-space: nowrap;
+  }
+
+  .env-val {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #A5D6FF;
+  }
+
+  .env-note {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .flag-manual {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    background: rgba(240,136,62,0.12);
+    color: var(--amber);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ── Note / callout ── */
+  .note {
+    background: rgba(240,136,62,0.07);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 12px 0;
+  }
+
+  .note strong { color: var(--amber); }
+
+  .info {
+    background: rgba(6,182,212,0.07);
+    border-left: 3px solid var(--upstash);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 12px 0;
+  }
+
+  .info strong { color: var(--upstash); }
+
+  /* ── Checklist ── */
+  .checklist {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-top: 24px;
+  }
+
+  .checklist-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #E6EDF3;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .checklist-title::before {
+    content: '✓';
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--amber);
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .check-item:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .check-item strong { color: var(--text); }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 56px 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .file-item { grid-template-columns: 1fr; gap: 6px; }
+    .service-sub { display: none; }
+    .step { grid-template-columns: 40px 1fr; }
+    .env-table th:last-child,
+    .env-table td:last-child { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <header class="hero">
+    <p class="hero-eyebrow">deploy --target production</p>
+    <h1>Production Deployment<br><span>Step-by-Step Guide</span></h1>
+    <p class="hero-sub">Everything you need to deploy the Enterprise Marketplace from zero to live — Supabase, Upstash, Render, Vercel, and Resend, in order.</p>
+    <div class="stack-pills">
+      <span class="pill pill-supabase">Supabase · Database</span>
+      <span class="pill pill-upstash">Upstash · Redis</span>
+      <span class="pill pill-render">Render · Backend</span>
+      <span class="pill pill-vercel">Vercel · Frontend</span>
+      <span class="pill pill-resend">Resend · Email</span>
+    </div>
+  </header>
+
+  <!-- Required Files -->
+  <section class="req-files">
+    <p class="req-files-label">already in your repo</p>
+    <h2>Required Files — No Changes Needed</h2>
+    <p>These files already exist in the codebase and configure each platform automatically. You do not need to create or edit them to deploy.</p>
+    <div class="file-list">
+      <div class="file-item">
+        <span class="file-path">render.yaml</span>
+        <span class="file-desc">Tells Render how to build and run the backend — build command, start command, Node runtime, and all environment variable names. Render reads this file automatically when you connect the repo.</span>
+      </div>
+      <div class="file-item">
+        <span class="file-path">frontend/vercel.json</span>
+        <span class="file-desc">Tells Vercel to redirect all routes to <code>index.html</code> so React Router works on page refresh. Without this, refreshing any page other than <code>/</code> returns a 404.</span>
+      </div>
+      <div class="file-item">
+        <span class="file-path">backend/prisma/schema.prisma</span>
+        <span class="file-desc">The database schema. Render runs <code>npx prisma migrate deploy</code> on every deploy to apply any pending migrations to your Supabase database automatically.</span>
+      </div>
+      <div class="file-item">
+        <span class="file-path">backend/src/configs/env.ts</span>
+        <span class="file-desc">Validates all environment variables at startup using Zod. If a required variable is missing or has an invalid value (like an empty string for a URL field), the server exits immediately with a clear error message.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SUPABASE ── -->
+  <section class="service">
+    <div class="service-header">
+      <span class="service-badge badge-supabase">01</span>
+      <h2 class="service-title">Supabase</h2>
+      <span class="service-sub">PostgreSQL database</span>
+    </div>
+
+    <div class="steps">
+      <div class="step step-supabase">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3 class="step-title">Create a Supabase project</h3>
+          <ol>
+            <li>Go to <strong>supabase.com</strong> → Sign up free with GitHub</li>
+            <li>Click <strong>New Project</strong></li>
+            <li>Choose your organisation, give the project a name (e.g. <code>marketplace-prod</code>)</li>
+            <li>Set a strong database password — save it, you'll need it</li>
+            <li>Choose region: <strong>ap-northeast-1</strong> (closest for most use cases)</li>
+            <li>Click <strong>Create new project</strong> — takes ~2 minutes</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step step-supabase">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3 class="step-title">Get the DATABASE_URL</h3>
+          <p>Your backend uses a connection pooler URL, not the direct URL.</p>
+          <ol>
+            <li>In your Supabase project, click <strong>Connect</strong> (top bar)</li>
+            <li>Click the <strong>Transaction</strong> tab under Connection String</li>
+            <li>Copy the URL — it looks like:</li>
+          </ol>
+          <pre><code>postgresql://postgres.xxxx:<span class="highlight">[YOUR-PASSWORD]</span>@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres</code></pre>
+          <div class="note"><strong>Important:</strong> Use the <strong>Transaction</strong> pooler URL, not the Direct or Session URL. The Transaction pooler handles connection limits on the free tier correctly.</div>
+        </div>
+      </div>
+
+      <div class="step step-supabase">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3 class="step-title">Seed the production database</h3>
+          <p>Migrations run automatically on Render deploy, but seed data (users, products, categories) must be run manually once.</p>
+          <pre><code><span class="comment"># From your local machine, in the backend directory</span>
+cd backend
+DATABASE_URL="<span class="highlight">your-supabase-url-here</span>" npx prisma db seed</code></pre>
+          <p>After seeding, these accounts exist in production:</p>
+          <table class="env-table">
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th></tr></thead>
+            <tbody>
+              <tr><td class="env-note">Super Admin</td><td class="env-val">superadmin@marketplace.com</td><td class="env-key">SuperAdmin@123</td></tr>
+              <tr><td class="env-note">Admin</td><td class="env-val">admin@marketplace.com</td><td class="env-key">Admin@123</td></tr>
+              <tr><td class="env-note">Vendor</td><td class="env-val">vendor@techstore.com</td><td class="env-key">Vendor@123</td></tr>
+              <tr><td class="env-note">Customer</td><td class="env-val">john.doe@example.com</td><td class="env-key">Customer@123</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── UPSTASH ── -->
+  <section class="service">
+    <div class="service-header">
+      <span class="service-badge badge-upstash">02</span>
+      <h2 class="service-title">Upstash</h2>
+      <span class="service-sub">Redis — queues &amp; sessions</span>
+    </div>
+
+    <div class="steps">
+      <div class="step step-upstash">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3 class="step-title">Create a Redis database</h3>
+          <ol>
+            <li>Go to <strong>upstash.com</strong> → Sign up free</li>
+            <li>Click <strong>Create Database</strong></li>
+            <li>Name it <code>marketplace-redis</code></li>
+            <li>Choose region: <strong>ap-northeast-1</strong> (same as Supabase)</li>
+            <li>Leave all other settings as default → click <strong>Create</strong></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step step-upstash">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3 class="step-title">Copy the credentials</h3>
+          <p>In the Upstash dashboard, click your database → <strong>Details</strong> tab. You need these four values for Render:</p>
+          <table class="env-table">
+            <thead><tr><th>Render Variable</th><th>Where to find it</th></tr></thead>
+            <tbody>
+              <tr><td class="env-key">REDIS_HOST</td><td class="env-note">Endpoint field (e.g. <code>happy-fox-12345.upstash.io</code>)</td></tr>
+              <tr><td class="env-key">REDIS_PORT</td><td class="env-note">Port field — usually <code>6379</code></td></tr>
+              <tr><td class="env-key">REDIS_PASSWORD</td><td class="env-note">Password field — click the eye icon to reveal</td></tr>
+              <tr><td class="env-key">REDIS_TLS</td><td class="env-note">Always <code>true</code> on Upstash — TLS is mandatory</td></tr>
+            </tbody>
+          </table>
+          <div class="info"><strong>Why TLS?</strong> Upstash requires encrypted connections. The backend's BullMQ job queue uses <code>REDIS_TLS=true</code> to enable it. Without this, queue workers silently fail to connect.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── RENDER ── -->
+  <section class="service">
+    <div class="service-header">
+      <span class="service-badge badge-render">03</span>
+      <h2 class="service-title">Render</h2>
+      <span class="service-sub">Node.js backend</span>
+    </div>
+
+    <div class="steps">
+      <div class="step step-render">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3 class="step-title">Create a Web Service</h3>
+          <ol>
+            <li>Go to <strong>render.com</strong> → Sign up free with GitHub</li>
+            <li>Click <strong>New → Web Service</strong></li>
+            <li>Connect your GitHub repository</li>
+            <li>Render auto-detects <code>render.yaml</code> and pre-fills the build settings</li>
+            <li>Do not change the build or start commands — they are set in <code>render.yaml</code></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step step-render">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3 class="step-title">Set environment variables</h3>
+          <p>Go to the <strong>Environment</strong> tab and add every variable below. The variables marked <span class="flag-manual">manual</span> are not in <code>render.yaml</code> — you must add them by hand.</p>
+
+          <table class="env-table">
+            <thead><tr><th>Variable</th><th>Value</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="env-key">DATABASE_URL</td>
+                <td class="env-val">postgresql://...</td>
+                <td class="env-note"><span class="flag-manual">manual</span> — Supabase Transaction pooler URL</td>
+              </tr>
+              <tr>
+                <td class="env-key">REDIS_HOST</td>
+                <td class="env-val">happy-fox-xxx.upstash.io</td>
+                <td class="env-note"><span class="flag-manual">manual</span> — from Upstash dashboard</td>
+              </tr>
+              <tr>
+                <td class="env-key">REDIS_PORT</td>
+                <td class="env-val">6379</td>
+                <td class="env-note"><span class="flag-manual">manual</span></td>
+              </tr>
+              <tr>
+                <td class="env-key">REDIS_PASSWORD</td>
+                <td class="env-val">your-upstash-password</td>
+                <td class="env-note"><span class="flag-manual">manual</span> — from Upstash dashboard</td>
+              </tr>
+              <tr>
+                <td class="env-key">REDIS_TLS</td>
+                <td class="env-val">true</td>
+                <td class="env-note">Pre-set in render.yaml</td>
+              </tr>
+              <tr>
+                <td class="env-key">JWT_PRIVATE_KEY</td>
+                <td class="env-val">-----BEGIN RSA PRIVATE KEY-----...</td>
+                <td class="env-note"><span class="flag-manual">manual</span> — copy from local <code>backend/.env</code></td>
+              </tr>
+              <tr>
+                <td class="env-key">JWT_PUBLIC_KEY</td>
+                <td class="env-val">-----BEGIN PUBLIC KEY-----...</td>
+                <td class="env-note"><span class="flag-manual">manual</span> — copy from local <code>backend/.env</code></td>
+              </tr>
+              <tr>
+                <td class="env-key">SESSION_SECRET</td>
+                <td class="env-val">any-32-char-random-string</td>
+                <td class="env-note"><span class="flag-manual">manual</span> — generate: <code>openssl rand -hex 32</code></td>
+              </tr>
+              <tr>
+                <td class="env-key">APP_URL</td>
+                <td class="env-val">https://market-enterprise-app.onrender.com</td>
+                <td class="env-note">Your Render service URL</td>
+              </tr>
+              <tr>
+                <td class="env-key">FRONTEND_URL</td>
+                <td class="env-val">https://your-app.vercel.app</td>
+                <td class="env-note">Update after Vercel deploy</td>
+              </tr>
+              <tr>
+                <td class="env-key">CORS_ORIGINS</td>
+                <td class="env-val">https://your-app.vercel.app</td>
+                <td class="env-note">Update after Vercel deploy</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note"><strong>JWT Keys:</strong> Copy the full multiline key from your local <code>backend/.env</code>. Each newline in the key must be a literal <code>\n</code> character, not an actual line break, when pasting into Render.</div>
+        </div>
+      </div>
+
+      <div class="step step-render">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3 class="step-title">Deploy and verify</h3>
+          <ol>
+            <li>Click <strong>Save Changes</strong> → Render starts deploying automatically</li>
+            <li>Watch the <strong>Logs</strong> tab — first deploy takes 5–8 minutes</li>
+            <li>Look for: <code>[CORS] Allowed origins: [...]</code> and <code>Server started</code></li>
+            <li>Confirm it's live by opening the health endpoint:</li>
+          </ol>
+          <pre><code>https://market-enterprise-app.onrender.com/api/v1/health</code></pre>
+          <p>Expected response: <code>{"success":true,"message":"OK"}</code></p>
+          <div class="info"><strong>Free tier note:</strong> Render spins down after 15 minutes of inactivity. The first request after idle takes 30–60 seconds to wake the server. Use <strong>cron-job.org</strong> to ping the health endpoint every 10 minutes to prevent sleep.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── VERCEL ── -->
+  <section class="service">
+    <div class="service-header">
+      <span class="service-badge badge-vercel">04</span>
+      <h2 class="service-title">Vercel</h2>
+      <span class="service-sub">React frontend</span>
+    </div>
+
+    <div class="steps">
+      <div class="step step-vercel">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3 class="step-title">Import the project</h3>
+          <ol>
+            <li>Go to <strong>vercel.com</strong> → Sign up with GitHub</li>
+            <li>Click <strong>Add New Project</strong></li>
+            <li>Import your GitHub repository</li>
+            <li>Set <strong>Root Directory</strong> to <code>frontend</code> — this is required, the React app is not at the repo root</li>
+            <li>Framework will auto-detect as <strong>Vite</strong></li>
+            <li>Leave Build Command and Output Directory as defaults</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step step-vercel">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3 class="step-title">Set environment variables</h3>
+          <p>On the same import screen, expand <strong>Environment Variables</strong> and add:</p>
+          <table class="env-table">
+            <thead><tr><th>Variable</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="env-key">VITE_API_URL</td>
+                <td class="env-val">https://market-enterprise-app.onrender.com/api/v1</td>
+              </tr>
+              <tr>
+                <td class="env-key">VITE_SOCKET_URL</td>
+                <td class="env-val">https://market-enterprise-app.onrender.com</td>
+              </tr>
+              <tr>
+                <td class="env-key">VITE_STRIPE_PUBLISHABLE_KEY</td>
+                <td class="env-val">pk_test_your-stripe-key</td>
+              </tr>
+              <tr>
+                <td class="env-key">VITE_APP_NAME</td>
+                <td class="env-val">Enterprise Marketplace</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="note"><strong>Stripe:</strong> Leave the default placeholder to run in Demo Mode (orders complete with one button, no card needed). Replace with real test keys from stripe.com to enable the full card payment UI.</div>
+        </div>
+      </div>
+
+      <div class="step step-vercel">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3 class="step-title">Deploy and update CORS on Render</h3>
+          <ol>
+            <li>Click <strong>Deploy</strong> — takes ~2 minutes</li>
+            <li>Copy your Vercel URL (e.g. <code>https://your-app.vercel.app</code>)</li>
+            <li>Go back to <strong>Render → Environment</strong> and update:</li>
+          </ol>
+          <table class="env-table">
+            <thead><tr><th>Variable</th><th>Update to</th></tr></thead>
+            <tbody>
+              <tr><td class="env-key">FRONTEND_URL</td><td class="env-val">https://your-app.vercel.app</td></tr>
+              <tr><td class="env-key">CORS_ORIGINS</td><td class="env-val">https://your-app.vercel.app</td></tr>
+            </tbody>
+          </table>
+          <p>Save → Render redeploys automatically. This step is required — without it the backend rejects all requests from Vercel with a CORS error.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── RESEND ── -->
+  <section class="service">
+    <div class="service-header">
+      <span class="service-badge badge-resend">05</span>
+      <h2 class="service-title">Resend</h2>
+      <span class="service-sub">Transactional email</span>
+    </div>
+
+    <div class="steps">
+      <div class="step step-resend">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3 class="step-title">Create an account and API key</h3>
+          <ol>
+            <li>Go to <strong>resend.com</strong> → Sign up free (100 emails/day)</li>
+            <li>Click <strong>API Keys</strong> in the left sidebar</li>
+            <li>Click <strong>Create API Key</strong> → name it <code>marketplace-prod</code></li>
+            <li>Copy the key immediately — it starts with <code>re_</code> and is shown only once</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step step-resend">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3 class="step-title">Add SMTP variables to Render</h3>
+          <p>Go to <strong>Render → your service → Environment</strong> and add:</p>
+          <table class="env-table">
+            <thead><tr><th>Variable</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td class="env-key">SMTP_HOST</td><td class="env-val">smtp.resend.com</td></tr>
+              <tr><td class="env-key">SMTP_PORT</td><td class="env-val">465</td></tr>
+              <tr><td class="env-key">SMTP_SECURE</td><td class="env-val">true</td></tr>
+              <tr><td class="env-key">SMTP_USER</td><td class="env-val">resend</td></tr>
+              <tr><td class="env-key">SMTP_PASSWORD</td><td class="env-val">re_xxxxxxxxxxxx</td></tr>
+              <tr><td class="env-key">SMTP_FROM_EMAIL</td><td class="env-val">onboarding@resend.dev</td></tr>
+              <tr><td class="env-key">SMTP_FROM_NAME</td><td class="env-val">Enterprise Marketplace</td></tr>
+            </tbody>
+          </table>
+          <div class="info"><strong>Custom domain:</strong> To send from your own domain (e.g. <code>noreply@yourdomain.com</code>) instead of <code>onboarding@resend.dev</code>, add your domain in Resend → Domains and add the DNS records it provides. Takes ~10 minutes to verify.</div>
+        </div>
+      </div>
+
+      <div class="step step-resend">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3 class="step-title">What triggers emails</h3>
+          <p>No code changes needed — emails fire automatically once the SMTP variables are set:</p>
+          <ul>
+            <li><strong>Register</strong> → email verification link (expires 24h)</li>
+            <li><strong>Forgot password</strong> → password reset link (expires 1h)</li>
+            <li><strong>Place order</strong> → order confirmation with order number and total</li>
+          </ul>
+          <p>Test by registering a new account with a real email address you own and checking the inbox.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Post-deploy checklist -->
+  <section>
+    <div class="checklist">
+      <div class="checklist-title">Post-Deployment Checklist</div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        <div><strong>Health endpoint responds</strong> — open <code>https://market-enterprise-app.onrender.com/api/v1/health</code> and confirm JSON response</div>
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        <div><strong>Database seeded</strong> — ran <code>npx prisma db seed</code> with Supabase DATABASE_URL</div>
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        <div><strong>CORS updated</strong> — <code>FRONTEND_URL</code> and <code>CORS_ORIGINS</code> on Render match your Vercel URL exactly (no trailing slash)</div>
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        <div><strong>Login works</strong> — can log in with <code>john.doe@example.com / Customer@123</code> on the live Vercel app</div>
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        <div><strong>Email works</strong> — registered a new account and received the verification email in your inbox</div>
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        <div><strong>Keep-alive configured</strong> — set up a cron job at cron-job.org to ping the health endpoint every 10 minutes so Render does not spin down</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
