@@ -8,14 +8,24 @@ export function useRegister() {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: (credentials: RegisterFormValues) =>
-      authService.register({
-        email: credentials.email,
-        password: credentials.password,
-        firstName: credentials.firstName,
-        lastName: credentials.lastName,
-        phone: credentials.phone,
-      }),
+    mutationFn: (credentials: RegisterFormValues) => {
+      const slowToast = setTimeout(() => {
+        toast.loading('Server is waking up, please wait...', { id: 'wake-up' });
+      }, 8000);
+
+      return authService
+        .register({
+          email: credentials.email,
+          password: credentials.password,
+          firstName: credentials.firstName,
+          lastName: credentials.lastName,
+          phone: credentials.phone,
+        })
+        .finally(() => {
+          clearTimeout(slowToast);
+          toast.dismiss('wake-up');
+        });
+    },
     onSuccess: (data) => {
       toast.success(data.message);
       void navigate({ to: '/login', search: { redirect: undefined } });
