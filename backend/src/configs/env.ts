@@ -43,6 +43,9 @@ const envSchema = z.object({
   SMTP_FROM_NAME: z.string().default('Enterprise Marketplace'),
   SMTP_FROM_EMAIL: z.string().email().default('noreply@marketplace.com'),
 
+  // Resend HTTP API (replaces SMTP on Render — SMTP ports are blocked)
+  RESEND_API_KEY: z.string().optional(),
+
   // AI
   GEMINI_API_KEY: z.string().optional(),
 
