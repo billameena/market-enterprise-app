@@ -20,7 +20,7 @@ export function useAdminStats() {
   return useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: () =>
-      api.get<AdminStats>('/analytics/admin').then((r) => r.data),
+      api.get<AdminStats>('/analytics/admin/dashboard').then((r) => r.data),
     staleTime: 1000 * 60 * 5,
   });
 }

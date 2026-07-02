@@ -9,9 +9,14 @@ export interface DashboardStats {
   totalOrders: number;
   totalUsers: number;
   totalVendors: number;
+  gmv: number;
+  pendingVendors: number;
+  pendingProducts: number;
+  activeProducts: number;
   revenueGrowth: number;
-  ordersGrowth: number;
-  usersGrowth: number;
+  orderGrowth: number;
+  userGrowth: number;
+  revenueTimeSeries: RevenueDataPoint[];
 }
 
 export interface VendorStats {

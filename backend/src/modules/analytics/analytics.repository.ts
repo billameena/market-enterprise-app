@@ -16,6 +16,12 @@ export class AnalyticsRepository {
       currentUsers,
       previousUsers,
       totalVendors,
+      pendingVendors,
+      pendingProducts,
+      activeProducts,
+      gmvResult,
+      totalUsers,
+      revenueTimeSeries,
     ] = await Promise.all([
       prisma.order.aggregate({ _sum: { totalAmount: true }, where: { createdAt: { gte: thirtyDaysAgo }, paymentStatus: 'PAID' } }),
       prisma.order.aggregate({ _sum: { totalAmount: true }, where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo }, paymentStatus: 'PAID' } }),
@@ -24,9 +30,14 @@ export class AnalyticsRepository {
       prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo }, deletedAt: null } }),
       prisma.user.count({ where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo }, deletedAt: null } }),
       prisma.vendor.count({ where: { status: 'APPROVED' } }),
+      prisma.vendor.count({ where: { status: 'PENDING' } }),
+      prisma.product.count({ where: { status: 'PENDING_REVIEW', deletedAt: null } }),
+      prisma.product.count({ where: { status: 'ACTIVE', deletedAt: null } }),
+      prisma.order.aggregate({ _sum: { totalAmount: true }, where: { paymentStatus: 'PAID' } }),
+      prisma.user.count({ where: { deletedAt: null } }),
+      this.getRevenueTimeSeries(30),
     ]);
 
-    const totalUsers = await prisma.user.count({ where: { deletedAt: null } });
     const curRevenue = Number(currentRevenue._sum.totalAmount ?? 0);
     const prevRevenue = Number(previousRevenue._sum.totalAmount ?? 0);
 
@@ -35,9 +46,14 @@ export class AnalyticsRepository {
       totalOrders: currentOrders,
       totalUsers,
       totalVendors,
+      gmv: Number(gmvResult._sum.totalAmount ?? 0),
+      pendingVendors,
+      pendingProducts,
+      activeProducts,
       revenueGrowth: prevRevenue > 0 ? ((curRevenue - prevRevenue) / prevRevenue) * 100 : 0,
-      ordersGrowth: previousOrders > 0 ? ((currentOrders - previousOrders) / previousOrders) * 100 : 0,
-      usersGrowth: previousUsers > 0 ? ((currentUsers - previousUsers) / previousUsers) * 100 : 0,
+      orderGrowth: previousOrders > 0 ? ((currentOrders - previousOrders) / previousOrders) * 100 : 0,
+      userGrowth: previousUsers > 0 ? ((currentUsers - previousUsers) / previousUsers) * 100 : 0,
+      revenueTimeSeries,
     };
   }
 

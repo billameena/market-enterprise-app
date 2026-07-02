@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
-  LayoutDashboard, Package, ShoppingBag, BarChart2, Settings, Users, Tag, Star
+  LayoutDashboard, Package, ShoppingBag, BarChart2, Settings, Users, Tag, Star, Ticket, FolderTree
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../hooks/useAuth';
@@ -20,6 +20,8 @@ const adminNavItems: NavItem[] = [
   { label: 'Products', path: '/admin/products', icon: <Package className="w-5 h-5" /> },
   { label: 'Orders', path: '/admin/orders', icon: <ShoppingBag className="w-5 h-5" /> },
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart2 className="w-5 h-5" /> },
+  { label: 'Coupons', path: '/admin/coupons', icon: <Ticket className="w-5 h-5" /> },
+  { label: 'Categories', path: '/admin/categories', icon: <FolderTree className="w-5 h-5" /> },
   { label: 'Settings', path: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
 ];
 

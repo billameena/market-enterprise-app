@@ -36,6 +36,11 @@ import { VendorAnalytics } from '../features/vendor/components/VendorAnalytics';
 import { UserManagement } from '../features/admin/components/UserManagement';
 import { VendorApproval } from '../features/admin/components/VendorApproval';
 import { ProductModeration } from '../features/admin/components/ProductModeration';
+import { AdminOrderManagement } from '../features/admin/components/AdminOrderManagement';
+import { AdminAnalytics } from '../features/admin/components/AdminAnalytics';
+import { AdminCoupons } from '../features/admin/components/AdminCoupons';
+import { AdminCategories } from '../features/admin/components/AdminCategories';
+import { AdminSettings } from '../features/admin/components/AdminSettings';
 
 // ─── Layout wrappers ──────────────────────────────────────────────────────────
 
@@ -303,7 +308,10 @@ const adminOrdersRoute = createRoute({
   path: '/admin/orders',
   component: () => (
     <AdminRoute>
-      <StubPage title="Order Management" />
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-surface-900">Order Management</h1>
+        <AdminOrderManagement />
+      </div>
     </AdminRoute>
   ),
 });
@@ -313,7 +321,33 @@ const adminAnalyticsRoute = createRoute({
   path: '/admin/analytics',
   component: () => (
     <AdminRoute>
-      <StubPage title="Analytics" />
+      <AdminAnalytics />
+    </AdminRoute>
+  ),
+});
+
+const adminCouponsRoute = createRoute({
+  getParentRoute: () => bareLayoutRoute,
+  path: '/admin/coupons',
+  component: () => (
+    <AdminRoute>
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-surface-900">Coupons</h1>
+        <AdminCoupons />
+      </div>
+    </AdminRoute>
+  ),
+});
+
+const adminCategoriesRoute = createRoute({
+  getParentRoute: () => bareLayoutRoute,
+  path: '/admin/categories',
+  component: () => (
+    <AdminRoute>
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-surface-900">Categories</h1>
+        <AdminCategories />
+      </div>
     </AdminRoute>
   ),
 });
@@ -323,7 +357,10 @@ const adminSettingsRoute = createRoute({
   path: '/admin/settings',
   component: () => (
     <AdminRoute>
-      <StubPage title="Settings" />
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-surface-900">Settings</h1>
+        <AdminSettings />
+      </div>
     </AdminRoute>
   ),
 });
@@ -383,6 +420,8 @@ const routeTree = rootRoute.addChildren([
     adminProductsRoute,
     adminOrdersRoute,
     adminAnalyticsRoute,
+    adminCouponsRoute,
+    adminCategoriesRoute,
     adminSettingsRoute,
   ]),
   authLayoutRoute.addChildren([
