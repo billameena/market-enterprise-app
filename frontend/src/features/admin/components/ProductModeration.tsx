@@ -19,7 +19,7 @@ export function ProductModeration() {
   const [rejectingProduct, setRejectingProduct] = useState<Product | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['admin', 'products', page, statusFilter],
     queryFn: () =>
       api
@@ -83,6 +83,10 @@ export function ProductModeration() {
             </div>
           ))}
         </div>
+      ) : isError ? (
+        <div className="p-6 text-center border border-red-200 bg-red-50 rounded-2xl text-sm text-red-700">
+          Failed to load products — {(error as { message: string })?.message ?? 'please try again'}
+        </div>
       ) : (
         <div className="border border-surface-200 rounded-2xl overflow-auto max-h-[calc(100vh-300px)]">
           <table className="w-full min-w-[640px]">
@@ -96,6 +100,13 @@ export function ProductModeration() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-50">
+              {data?.products.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-12 text-center text-surface-400 text-sm">
+                    No products found for this status filter
+                  </td>
+                </tr>
+              )}
               {data?.products.map((product) => (
                 <tr key={product.id} className="hover:bg-surface-50/50 transition-colors">
                   <td className="px-5 py-4">

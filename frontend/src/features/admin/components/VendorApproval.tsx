@@ -26,7 +26,7 @@ export function VendorApproval() {
   const [viewingVendor, setViewingVendor] = useState<Vendor | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['admin', 'vendors', page, statusFilter],
     queryFn: () =>
       api
@@ -80,6 +80,10 @@ export function VendorApproval() {
             </div>
           ))}
         </div>
+      ) : isError ? (
+        <div className="p-6 text-center border border-red-200 bg-red-50 rounded-2xl text-sm text-red-700">
+          Failed to load vendors — {(error as { message: string })?.message ?? 'please try again'}
+        </div>
       ) : (
         <div className="border border-surface-200 rounded-2xl overflow-auto max-h-[calc(100vh-300px)]">
           <table className="w-full min-w-[640px]">
@@ -93,6 +97,13 @@ export function VendorApproval() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-50">
+              {data?.vendors.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-12 text-center text-surface-400 text-sm">
+                    No vendors found for this filter
+                  </td>
+                </tr>
+              )}
               {data?.vendors.map((vendor) => (
                 <tr key={vendor.id} className="hover:bg-surface-50/50 transition-colors">
                   <td className="px-5 py-4">

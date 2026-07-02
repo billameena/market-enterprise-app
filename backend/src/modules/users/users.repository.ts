@@ -55,12 +55,13 @@ export class UsersRepository {
           password: false,
           emailVerificationToken: false,
           passwordResetToken: false,
+          _count: { select: { orders: true } },
         },
       }),
       prisma.user.count({ where }),
     ]);
 
-    return buildPaginatedResult(users as Omit<User, 'password'>[], total, page, pageSize);
+    return buildPaginatedResult(users as unknown as Omit<User, 'password'>[], total, page, pageSize);
   }
 
   async softDelete(id: string): Promise<void> {
